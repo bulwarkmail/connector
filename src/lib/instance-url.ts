@@ -58,7 +58,7 @@ export function normaliseInstanceUrl(raw: string): NormaliseResult {
     return { ok: false, error: "Remove the username and password from the address." };
   }
   if (url.search || url.hash) {
-    return { ok: false, error: "Remove the query string and the # part of the address." };
+    return { ok: false, error: "Remove everything after ? or # from the address." };
   }
   if (!url.hostname) {
     return { ok: false, error: "That address has no host name." };
@@ -68,13 +68,13 @@ export function normaliseInstanceUrl(raw: string): NormaliseResult {
   if (insecure && !isLocalHost(url.hostname)) {
     return {
       ok: false,
-      error: "Use https. Plain http is only offered for an instance on this machine or your own network.",
+      error: "Use https. Plain http only works for a server on your own computer or network.",
     };
   }
 
   const basePath = url.pathname.replace(/\/+$/, "");
   if (basePath && !/^(\/[A-Za-z0-9._~-]+)+$/.test(basePath)) {
-    return { ok: false, error: "That path does not look like a mount point." };
+    return { ok: false, error: "The path in that address contains characters that are not allowed." };
   }
 
   return {

@@ -2,105 +2,94 @@
 
 The site behind [connector.bulwarkmail.org](https://connector.bulwarkmail.org).
 
-Documentation, the extension directory, release notes and support replies can
-only link to *a* Bulwark — they have no idea where yours is. A connector link
-names a destination instead of a host:
+Guides, release notes and the extension directory cannot know where your
+Bulwark runs. A connector link names a page instead of a server:
 
 ```
 https://connector.bulwarkmail.org/settings?tab=filters
 https://connector.bulwarkmail.org/admin_extension?slug=quick-reply
 ```
 
-Opened in a browser that knows where your Bulwark is, those become
+In a browser that knows your Bulwark, those open as
 
 ```
 https://mail.example.com/connector/settings?tab=filters
 https://mail.example.com/connector/admin_extension?slug=quick-reply
 ```
 
-and the instance resolves the rest.
+Your Bulwark takes it from there.
 
 ## What is stored
 
-The list of your instances, in this browser's `localStorage`, on this site's
-origin. That is all of it.
+Your list of servers, in this browser's `localStorage`. Nothing else.
 
-Not a cookie: a cookie is sent to the server on every request, which would put
-the list of someone's mail servers into an access log. There is no account, no
-database, no session, no analytics script, and no record of which links are
-opened — the site cannot keep one, because every page is a static file and the
-link's destination is worked out in your browser after the page has loaded.
+There is no account, no database, no cookie and no analytics. The site cannot
+log which links are opened: every page is a static file, and the redirect
+happens in the browser after the page has loaded.
 
-The check that runs when you add an instance is a request from your browser
-straight to your own server, without credentials. It does not pass through us.
+When you add a server, your browser checks it directly. That request does not
+go through this site.
 
-Three things enforce that rather than promising it:
+Three checks enforce this:
 
-| Guard | Where |
+| Check | Where |
 |---|---|
-| Fails the build if a page loads anything off-origin, touches `document.cookie`, or stops being prerendered | `scripts/check-privacy.mjs`, run in CI and before every deploy |
-| Blocks `document.cookie` in source | `eslint.config.mjs` |
-| Drops the access log, so the server never writes a target or a parameter to disk | `deploy/nginx.conf.example` |
+| The build fails if a page loads anything from another origin, touches `document.cookie`, or is not prerendered | `scripts/check-privacy.mjs`, run in CI and before every deploy |
+| `document.cookie` is banned in source | `eslint.config.mjs` |
+| The web server keeps no access log | `deploy/nginx.conf.example` |
 
-The dependency list is deliberately three packages: Next, React and ReactDOM.
-Nothing that runs in a visitor's browser comes from anywhere else.
+The only dependencies are Next, React and ReactDOM.
 
-One honest caveat about the CSP: `script-src` allows `'unsafe-inline'`,
-because Next's hydration payload is a set of inline `<script>` blocks and a
-static export has no per-request nonce to sign them with. It is tolerable here
-only because these pages render no untrusted content into markup — the error
-cards name a bad parameter without ever echoing its value — so there is no
-injection point for an inline script to arrive through. If that stops being
-true, generate the union of the inline scripts' sha256 hashes at build time
-and list those instead.
+One caveat: the CSP allows `'unsafe-inline'` scripts, because Next hydrates
+with inline `<script>` blocks and a static export has no per-request nonce.
+This is acceptable only because no page renders untrusted content into markup.
+Error pages name a bad parameter but never echo its value. If that changes,
+generate sha256 hashes of the inline scripts at build time and list those
+instead.
 
 ## The registry
 
-`src/lib/registry.ts` lists every destination a link can name, and the shape of
-each one's parameters. It is one half of a contract; the other half lives in
-the webmail (`lib/connector/registry.ts`), which owns the path templates — how
-a target becomes a route inside the app.
+`src/lib/registry.ts` lists every page a link can open and the shape of its
+parameters. The webmail has a matching file (`lib/connector/registry.ts`)
+that owns the actual routes.
 
-The connector deliberately does not know those paths. It validates parameters
-and forwards `<instance>/connector/<target>?<params>`; the instance resolves
-it. That split is what lets an instance be older than this site: a target it
-does not know yet produces its own "this version doesn't support that link"
-card instead of a 404.
+The connector does not know those routes. It validates the parameters and
+forwards `<server>/connector/<target>?<params>`. This lets a server be older
+than this site: a page it does not know yet shows its own "update Bulwark"
+message instead of a 404.
 
-Adding a target means editing both files. `minVersion` is the first webmail
-release that resolves it, and an instance that has been checked reports which
-targets it knows, so a link can warn before opening one that will not work.
+To add a target, edit both files. `minVersion` is the first webmail release
+that supports it. A checked server reports which targets it knows, so a link
+can warn before opening one that will not work.
 
-Target names share the root namespace with the site's own pages, so none of
-them may be called `add`, `instances`, `create-link` or `badges`. A test
-enforces it.
+Target names may not be `add`, `instances`, `create-link` or `badges`. Those
+are the site's own pages. A test enforces this.
 
 ## Development
 
 ```sh
 npm install
 npm run dev            # http://localhost:3013
-npm test               # registry, URL validation, storage
+npm test
 npm run lint
 npm run typecheck
 npm run build          # static export into out/, plus out/badges
 npm run check:privacy  # inspects out/
 ```
 
-`npm run build` produces a plain directory of files. There is no server to run.
+The build is a plain directory of files. There is no server to run.
 
 ## Deployment
 
-Every push to `main` goes live, via `.github/workflows/deploy.yml`: the runner
-lints, tests, builds, runs the privacy check, starts the exact bundle and
-checks the real pages, then streams it over SSH to a forced command on the
-server (`deploy/connector-deploy.sh`), which unpacks it beside the previous
-releases, flips a symlink, health-checks through nginx and rolls back if the
-check fails.
+Every push to `main` goes live via `.github/workflows/deploy.yml`. The runner
+lints, tests, builds, runs the privacy check, serves the bundle and checks the
+real pages. It then sends the bundle over SSH to `deploy/connector-deploy.sh`
+on the server, which unpacks it next to the previous releases, switches a
+symlink, health-checks through nginx and rolls back on failure.
 
 "Run workflow" in the Actions tab redeploys `main` or rolls back.
 `deploy/nginx.conf.example` is the vhost.
 
 ## Licence
 
-AGPL-3.0-only, the same as the rest of Bulwark.
+AGPL-3.0-only, like the rest of Bulwark.

@@ -42,9 +42,9 @@ export function InstancesClient() {
 
   const head = (
     <>
-      <h1 className="bw-h1">Your instances.</h1>
+      <h1 className="bw-h1">Your servers.</h1>
       <p className="bw-lead">
-        Stored in this browser only. Another browser, or another device, has its own list.
+        Saved in this browser only. Other browsers and devices have their own list.
       </p>
     </>
   );
@@ -61,10 +61,10 @@ export function InstancesClient() {
     <SiteShell head={head}>
       {store.instances.length === 0 ? (
         <div className="bw-stack max-w-[560px]">
-          <p>Nothing stored here yet.</p>
+          <p>No servers saved yet.</p>
           <div className="bw-btns">
             <Link className="bw-btn" href="/add">
-              Add an instance
+              Add your Bulwark
             </Link>
           </div>
         </div>
@@ -186,19 +186,18 @@ export function InstancesClient() {
             checked={store.rememberChoice}
             onChange={(event) => update({ ...store, rememberChoice: event.target.checked })}
           />
-          <span>Open links on the default instance without asking</span>
+          <span>Always open links on the default server without asking</span>
         </label>
       ) : null}
 
       <section className="bw-sec-tight">
-        <h2 className="bw-h2">Forget everything</h2>
+        <h2 className="bw-h2">Remove all servers</h2>
         <p className="bw-lead mt-3">
-          Clears the list from this browser. There is nothing to clear anywhere else - this list is
-          the only thing this site has ever known about you.
+          Removes every saved server from this browser. Nothing is stored anywhere else.
         </p>
         <div className="bw-btns mt-8">
           <button type="button" className="bw-btn bw-btn-ghost" onClick={clear}>
-            Forget everything
+            Remove all servers
           </button>
         </div>
       </section>

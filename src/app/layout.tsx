@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s - Bulwark Connector",
   },
   description:
-    "Opens a link on your own Bulwark instance. Your instance addresses stay in this browser and are never sent anywhere.",
+    "Opens Bulwark links on your own server. Your server addresses stay in this browser.",
   applicationName: "Bulwark Connector",
   icons: { icon: "/branding/favicon/Bulwark Favicon.svg" },
   // A redirector has nothing to index, and a search result for someone else's

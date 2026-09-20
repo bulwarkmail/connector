@@ -35,9 +35,8 @@ export function CreateLinkClient({ targets }: { targets: readonly Target[] }) {
         <>
           <h1 className="bw-h1">Make a link.</h1>
           <p className="bw-lead">
-            For documentation, release notes, READMEs and support replies. The link opens on
-            whichever Bulwark the reader has told this site about - you never need to know where
-            that is.
+            The link opens on the reader&apos;s own Bulwark, wherever that is. Use it in guides,
+            release notes and support replies.
           </p>
         </>
       }
@@ -46,7 +45,7 @@ export function CreateLinkClient({ targets }: { targets: readonly Target[] }) {
         <form className="bw-form" onSubmit={(event) => event.preventDefault()}>
           <div className="bw-form-field">
             <label className="bw-label" htmlFor="target">
-              What should the link open?
+              What the link opens
             </label>
             <select
               id="target"
@@ -106,8 +105,8 @@ export function CreateLinkClient({ targets }: { targets: readonly Target[] }) {
 
           {target ? (
             <p className="bw-note">
-              <b>Note.</b> Needs Bulwark {target.minVersion} or later. An older instance shows a
-              note instead of failing.
+              <b>Note.</b> Needs Bulwark {target.minVersion} or newer. Older versions show a
+              message instead.
             </p>
           ) : null}
         </form>
@@ -118,7 +117,7 @@ export function CreateLinkClient({ targets }: { targets: readonly Target[] }) {
           <Snippet
             title="Docs shorthand"
             value={valid && target ? `[${label}](connector:${target.name}${query})` : ""}
-            note="Inside the bulwarkmail.org docs, remark-connector-link expands this."
+            note="Only works inside the bulwarkmail.org docs."
           />
           <Snippet title="HTML" value={valid ? `<a href="${url}" rel="noreferrer">${label}</a>` : ""} />
         </div>

@@ -125,7 +125,7 @@ export const TARGETS: readonly Target[] = [
   {
     name: "app",
     label: "Bulwark",
-    description: "Just open the app.",
+    description: "Open the app.",
     minVersion: V1,
     group: "App",
   },
@@ -148,7 +148,7 @@ export const TARGETS: readonly Target[] = [
   {
     name: "calendar",
     label: "Calendar",
-    description: "Open the calendar on a view and date.",
+    description: "Open the calendar on a given view and date.",
     minVersion: V1,
     group: "App",
     params: {
@@ -182,8 +182,7 @@ export const TARGETS: readonly Target[] = [
   {
     name: "admin_extension",
     label: "Install an extension",
-    description:
-      "Open the marketplace page for one extension, where an admin can review its manifest and permissions before installing.",
+    description: "Open an extension's marketplace page, where an admin can install it.",
     minVersion: V1,
     group: "Admin",
     params: { slug: { type: "slug", required: true } },
@@ -191,7 +190,7 @@ export const TARGETS: readonly Target[] = [
   {
     name: "admin_plugin",
     label: "Plugin settings",
-    description: "Open an installed plugin's configuration panel.",
+    description: "Open the settings of an installed plugin.",
     minVersion: V1,
     group: "Admin",
     params: { id: { type: "slug", required: true } },
@@ -199,7 +198,7 @@ export const TARGETS: readonly Target[] = [
   {
     name: "admin_auth",
     label: "Authentication",
-    description: "Open the admin authentication panel (OAuth setup).",
+    description: "Open the login settings (OAuth).",
     minVersion: V1,
     group: "Admin",
   },
@@ -253,11 +252,11 @@ function validateOne(spec: ParamSpec, value: string): string | null {
 
   switch (spec.type) {
     case "enum":
-      return spec.values.includes(value) ? null : "is not one of the allowed values";
+      return spec.values.includes(value) ? null : "is not an allowed value";
     case "slug":
-      return SLUG.test(value) ? null : "is not a valid slug";
+      return SLUG.test(value) ? null : "may only contain lowercase letters, numbers and dashes";
     case "date":
-      return isRealDate(value) ? null : "is not a YYYY-MM-DD date";
+      return isRealDate(value) ? null : "must be a date like 2026-09-20";
     case "id":
       // Opaque, but it becomes one path segment on the instance, so it may not
       // contain anything that could climb out of it. `%` is refused along with
@@ -265,14 +264,14 @@ function validateOne(spec: ParamSpec, value: string): string | null {
       // in, so `..%2Fadmin` would arrive there as `../admin`. Real JMAP ids
       // have no percent signs in them.
       return /[/\\?#%]/.test(value) || value === "." || value === ".."
-        ? "is not a valid id"
+        ? "contains characters that are not allowed"
         : null;
     case "path": {
       const segments = value.split("/").filter(Boolean);
       if (segments.length === 0) return "is empty";
-      if (segments.length > 32) return "has too many segments";
+      if (segments.length > 32) return "has too many parts";
       return segments.some((s) => s === "." || s === ".." || /[\\?#]/.test(s))
-        ? "is not a valid path"
+        ? "contains characters that are not allowed"
         : null;
     }
   }

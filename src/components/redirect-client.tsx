@@ -67,7 +67,7 @@ export function RedirectClient({ target }: { target: Target }) {
     case "loading":
       return (
         <SiteShell>
-          <p className="bw-muted">Working out where to send you…</p>
+          <p className="bw-muted">Loading…</p>
         </SiteShell>
       );
 
@@ -76,26 +76,24 @@ export function RedirectClient({ target }: { target: Target }) {
         <SiteShell
           head={
             <>
-              <h1 className="bw-h1">That link is not quite right.</h1>
+              <h1 className="bw-h1">This link is broken.</h1>
               <p className="bw-lead">
-                It asks for {target.label.toLowerCase()}, but one of its parameters is missing or
-                malformed. Nothing was opened.
+                Part of the link is missing or wrong. Nothing was opened.
               </p>
             </>
           }
         >
           {/* The parameter is named, never echoed: its value is attacker-controlled. */}
           <p className="bw-note bw-note-warning bw-body">
-            <b>Warning.</b> The <code className="bw-code">{step.param}</code> parameter{" "}
-            {step.reason}. If you were sent this link, whoever wrote it can rebuild it with the
-            link maker.
+            <b>Warning.</b> The <code className="bw-code">{step.param}</code> value{" "}
+            {step.reason}. Ask whoever sent you this link to make a new one.
           </p>
           <div className="bw-btns mt-8">
             <Link className="bw-btn" href="/create-link">
-              Make a working link
+              Make a new link
             </Link>
             <Link className="bw-btn bw-btn-ghost" href="/">
-              Start over
+              Go to the start
             </Link>
           </div>
         </SiteShell>
@@ -106,10 +104,10 @@ export function RedirectClient({ target }: { target: Target }) {
         <SiteShell
           head={
             <>
-              <h1 className="bw-h1">Open {target.label.toLowerCase()} on your Bulwark.</h1>
+              <h1 className="bw-h1">Where is your Bulwark?</h1>
               <p className="bw-lead">
-                {target.description} First, tell this browser where your Bulwark is. It is stored
-                here and sent nowhere.
+                This link opens {target.label.toLowerCase()}. Enter the address of your Bulwark
+                first. It is saved in this browser only.
               </p>
             </>
           }
@@ -128,8 +126,8 @@ export function RedirectClient({ target }: { target: Target }) {
         <SiteShell
           head={
             <>
-              <h1 className="bw-h1">Which Bulwark?</h1>
-              <p className="bw-lead">Opening {target.label.toLowerCase()}.</p>
+              <h1 className="bw-h1">Which server?</h1>
+              <p className="bw-lead">This link opens {target.label.toLowerCase()}.</p>
             </>
           }
         >
@@ -158,11 +156,11 @@ export function RedirectClient({ target }: { target: Target }) {
               checked={remember}
               onChange={(event) => setRemember(event.target.checked)}
             />
-            <span>Remember my choice in this browser</span>
+            <span>Always use this server</span>
           </label>
           <p className="mt-8">
             <Link className="bw-tlink" href="/add">
-              Add another instance
+              Add another server
               <ArrowRight size={16} />
             </Link>
           </p>
@@ -174,29 +172,29 @@ export function RedirectClient({ target }: { target: Target }) {
         <SiteShell
           head={
             <>
-              <h1 className="bw-h1">That instance is too old for this link.</h1>
+              <h1 className="bw-h1">Your Bulwark is too old for this link.</h1>
               <p className="bw-lead">
-                {step.instance.origin}
-                {step.instance.basePath} runs {step.instance.version ?? "an older version"}, which
-                does not know this link. Bulwark {target.minVersion} or later does.
+                {step.instance.origin.replace(/^https?:\/\//, "")}
+                {step.instance.basePath} runs Bulwark {step.instance.version ?? "an older version"}.
+                This link needs Bulwark {target.minVersion} or newer.
               </p>
             </>
           }
         >
           <div className="bw-btns">
             <button type="button" className="bw-btn" onClick={() => setOverrideAge(true)}>
-              Try it anyway
+              Try anyway
             </button>
             <a
               className="bw-btn bw-btn-ghost"
               href={`${step.instance.origin}${step.instance.basePath}/`}
               rel="noreferrer"
             >
-              Just open Bulwark
+              Open Bulwark instead
             </a>
             {store.instances.length > 1 ? (
               <button type="button" className="bw-btn bw-btn-ghost" onClick={() => setChosen(null)}>
-                Use a different instance
+                Use another server
               </button>
             ) : null}
           </div>
@@ -228,7 +226,7 @@ export function RedirectClient({ target }: { target: Target }) {
                         update(setDefaultInstance(store, null));
                       }}
                     >
-                      Not this one?
+                      Not this server?
                     </button>
                   </>
                 ) : null}
@@ -237,8 +235,7 @@ export function RedirectClient({ target }: { target: Target }) {
           }
         >
           <p className="bw-muted bw-small">
-            Your instance addresses stay in this browser. Nothing about this link reaches a server
-            we run.
+            This happens in your browser. We never see where you go.
           </p>
         </SiteShell>
       );

@@ -10,26 +10,25 @@ export default function NotFound() {
     <SiteShell
       head={
         <>
-          <h1 className="bw-h1">No such link.</h1>
+          <h1 className="bw-h1">This link does not exist.</h1>
           <p className="bw-lead">
-            This address does not name anything Bulwark can open. Nothing was opened and nothing
-            was sent anywhere.
+            Bulwark has no page at this address. Nothing was opened.
           </p>
         </>
       }
     >
       <div className="bw-tiles bw-tiles-2">
         <Link className="bw-tile" href="/">
-          <span className="bw-tile-title">Start over</span>
+          <span className="bw-tile-title">Go to the start</span>
           <span className="bw-tile-text">
-            Add your Bulwark, or see which instances this browser already knows.
+            Add your Bulwark or see your saved servers.
           </span>
           <ArrowRight size={20} className="bw-tile-arrow" />
         </Link>
         <Link className="bw-tile" href="/create-link">
-          <span className="bw-tile-title">Make a working link</span>
+          <span className="bw-tile-title">Make a link</span>
           <span className="bw-tile-text">
-            Pick a destination and get the link, the markdown and the docs shorthand.
+            Pick a page and get a link you can share.
           </span>
           <ArrowRight size={20} className="bw-tile-arrow" />
         </Link>

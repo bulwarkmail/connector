@@ -27,7 +27,7 @@ export function SiteShell({
               Bulwark <span>Connector</span>
             </Link>
             <div className="bw-nav-links">
-              <Link href="/instances">Instances</Link>
+              <Link href="/instances">Your servers</Link>
               <Link href="/create-link">Make a link</Link>
             </div>
           </nav>
@@ -50,18 +50,18 @@ export function SiteShell({
                 Bulwark <span>Connector</span>
               </Link>
               <p>
-                Opens a link on your own Bulwark instance. Your instance addresses stay in this
-                browser and are never sent anywhere.
+                Opens Bulwark links on your own server. Your server addresses stay in this
+                browser.
               </p>
             </div>
             <div>
               <h3>This site</h3>
               <ul>
                 <li>
-                  <Link href="/instances">Your instances</Link>
+                  <Link href="/instances">Your servers</Link>
                 </li>
                 <li>
-                  <Link href="/add">Add an instance</Link>
+                  <Link href="/add">Add your Bulwark</Link>
                 </li>
                 <li>
                   <Link href="/create-link">Make a link</Link>

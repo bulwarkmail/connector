@@ -21,7 +21,7 @@ export function LandingClient() {
           {store.instances.length === 0 ? "Add your Bulwark" : "Add another"}
         </h2>
         <p className="bw-lead mt-3">
-          The address you use to open Bulwark, including a subpath if it runs under one.
+          Enter the address you use to open Bulwark.
         </p>
         <div className="mt-8">
           <InstanceForm store={store} onStoreChange={update} onAdded={() => setAdding(false)} />
@@ -33,7 +33,7 @@ export function LandingClient() {
   return (
     <section className="bw-sec-tight">
       <h2 className="bw-h2">
-        {store.instances.length === 1 ? "Your Bulwark" : "Your Bulwark instances"}
+        {store.instances.length === 1 ? "Your Bulwark" : "Your Bulwark servers"}
       </h2>
       <div className="bw-tiles bw-tiles-1 mt-8">
         {store.instances.map((instance) => (
@@ -57,7 +57,7 @@ export function LandingClient() {
           Add another
         </button>
         <Link className="bw-btn bw-btn-ghost" href="/instances">
-          Manage instances
+          Manage servers
         </Link>
       </div>
     </section>

@@ -85,8 +85,8 @@ export async function probeInstance(instance: NormalisedInstance): Promise<Probe
   return {
     ok: false,
     error: reachedSomething
-      ? "That address answered, but not like a Bulwark instance. Check the address, or add it anyway."
-      : "Could not reach that address from this browser. If the instance is only reachable on another network, add it anyway.",
+      ? "Something answered at that address, but it does not look like Bulwark. Check the address, or add it anyway."
+      : "Could not reach that address. If your Bulwark is only reachable from another network, add it anyway.",
   };
 }
 

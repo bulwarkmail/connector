@@ -63,7 +63,7 @@ export function InstanceForm({
       return;
     }
     if (result.insecure && !acceptInsecure) {
-      setError("Tick the box below to use an unencrypted address.");
+      setError("Tick the box below to use a plain http address.");
       return;
     }
 
@@ -88,7 +88,7 @@ export function InstanceForm({
     return (
       <div className="bw-stack max-w-[560px]">
         <div>
-          <h3 className="bw-h3">Could not check that address</h3>
+          <h3 className="bw-h3">Could not check this address</h3>
           <p className="bw-help mt-2">{phase.message}</p>
         </div>
         <p className="bw-small">
@@ -103,7 +103,7 @@ export function InstanceForm({
             className="bw-btn bw-btn-ghost"
             onClick={() => setPhase({ kind: "editing" })}
           >
-            Change the address
+            Edit the address
           </button>
         </div>
       </div>
@@ -145,14 +145,14 @@ export function InstanceForm({
               </code>
             </>
           ) : (
-            "Checked from this browser, straight to your server."
+            "Your browser checks this address directly. We never see it."
           )}
         </p>
       </div>
 
       <div className="bw-form-field">
         <label className="bw-label" htmlFor="instance-label">
-          Name for it
+          Name
         </label>
         <input
           id="instance-label"
@@ -166,7 +166,7 @@ export function InstanceForm({
           disabled={checking}
         />
         <p className="bw-help" id="instance-label-help">
-          Optional. Only useful once you have more than one.
+          Optional. Helps if you add more than one.
         </p>
       </div>
 
@@ -178,8 +178,8 @@ export function InstanceForm({
             onChange={(event) => setAcceptInsecure(event.target.checked)}
           />
           <span>
-            This address is unencrypted (<code className="bw-code">http</code>). That is fine on
-            your own machine or network, and nowhere else.
+            This address uses plain <code className="bw-code">http</code>. Only do this for a
+            server on your own computer or network.
           </span>
         </label>
       ) : null}

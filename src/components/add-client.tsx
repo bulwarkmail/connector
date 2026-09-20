@@ -35,9 +35,9 @@ export function AddClient() {
       <SiteShell
         head={
           <>
-            <h1 className="bw-h1">Added.</h1>
+            <h1 className="bw-h1">Saved.</h1>
             <p className="bw-lead">
-              {added.label} is now the instance this browser will use for Bulwark links.
+              Bulwark links in this browser now open on {added.label}.
             </p>
           </>
         }
@@ -53,7 +53,7 @@ export function AddClient() {
             Open it
           </a>
           <Link className="bw-btn bw-btn-ghost" href="/instances">
-            Manage instances
+            Manage servers
           </Link>
         </div>
       </SiteShell>
@@ -64,11 +64,11 @@ export function AddClient() {
     <SiteShell
       head={
         <>
-          <h1 className="bw-h1">Add an instance.</h1>
+          <h1 className="bw-h1">Add your Bulwark.</h1>
           <p className="bw-lead">
             {suggested
-              ? "Bulwark sent you here with this address filled in. Check it, then add it."
-              : "The address you use to open Bulwark, including a subpath if it runs under one."}
+              ? "Bulwark filled in this address for you. Check it, then add it."
+              : "Enter the address you use to open Bulwark."}
           </p>
         </>
       }

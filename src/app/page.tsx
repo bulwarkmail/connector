@@ -5,18 +5,18 @@ import { ArrowRight, Link as LinkIcon, Server, Shield } from "@/components/icons
 const FACTS = [
   {
     icon: LinkIcon,
-    title: "One link, every instance",
-    text: "A link names a destination, not a host.",
+    title: "One link for everyone",
+    text: "The same link works no matter where your Bulwark runs.",
   },
   {
     icon: Server,
-    title: "Several instances",
-    text: "Work, personal, a staging box. It asks which one, once.",
+    title: "More than one Bulwark",
+    text: "Add them all. You pick which one to open.",
   },
   {
     icon: Shield,
-    title: "Nothing on a server",
-    text: "Your addresses live in this browser and nowhere else.",
+    title: "Private",
+    text: "Your addresses stay in this browser. We never see them.",
   },
 ];
 
@@ -25,11 +25,10 @@ export default function HomePage() {
     <SiteShell
       head={
         <>
-          <h1 className="bw-h1">One link, your Bulwark.</h1>
+          <h1 className="bw-h1">Links that open your Bulwark.</h1>
           <p className="bw-lead">
-            Documentation, the extension directory and release notes can only link to a Bulwark -
-            they have no idea where yours is. This page does: it keeps your instance addresses in
-            this browser and sends you on to the right one.
+            Guides and release notes cannot know where your Bulwark is. Tell this site once, and
+            every Bulwark link opens on your own server.
           </p>
         </>
       }
@@ -47,31 +46,26 @@ export default function HomePage() {
       <LandingClient />
 
       <section className="bw-sec-tight">
-        <h2 className="bw-h2">What is stored</h2>
+        <h2 className="bw-h2">What we store</h2>
         <div className="bw-body mt-4 grid gap-4">
           <p>
-            The addresses you add live in this browser&apos;s local storage, on this site&apos;s
-            origin. That is the whole list. There is no account, no database, no cookie, no
-            analytics script, and this server keeps no log of which links are opened - it cannot,
-            because every page here is a static file and your link&apos;s destination is worked out
-            after the page has loaded, in your browser.
+            Only the addresses you add, saved in this browser. No account, no cookies, no tracking,
+            no logs. Every page here is a plain file, and the redirect happens in your browser. Our
+            server never sees where a link goes.
           </p>
           <p>
-            The check that runs when you add an instance is a request from your browser straight to
-            your own server, with no credentials attached. It never touches us. You can remove
-            everything at any time, and nothing survives it anywhere else.
+            When you add a server, your browser checks it directly. That request does not go
+            through us. You can remove your servers at any time, and nothing is left anywhere else.
           </p>
         </div>
         <p className="bw-note bw-note-brand bw-body mt-6">
-          <b>Note.</b> The code is on GitHub, and this is all of it. Three build rules keep the
-          promise above honest rather than stated: the build fails if a page loads anything
-          off-origin or touches a cookie, and the web server is configured not to log a request
-          line.
+          <b>Note.</b> The code is open source. The build fails if any page loads something from
+          another site or uses a cookie, and the web server keeps no access log.
         </p>
         <p className="mt-6">
           {/* Standalone link: weight 500, underlined, with a 16px arrow. */}
           <a className="bw-tlink" href="https://github.com/bulwarkmail/connector">
-            Read the source
+            View the source
             <ArrowRight size={16} />
           </a>
         </p>

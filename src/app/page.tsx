@@ -49,9 +49,10 @@ export default function HomePage() {
         <h2 className="bw-h2">What we store</h2>
         <div className="bw-body mt-4 grid gap-4">
           <p>
-            Only the addresses you add, saved in this browser. No account, no cookies, no tracking,
-            no logs. Every page here is a plain file, and the redirect happens in your browser. Our
-            server never sees where a link goes.
+            The addresses you add and your light or dark choice, saved in this browser. That is
+            the whole list. No account, no cookies, no tracking, no logs. Every page here is a
+            plain file, and the redirect happens in your browser. Our server never sees where a
+            link goes.
           </p>
           <p>
             When you add a server, your browser checks it directly. That request does not go

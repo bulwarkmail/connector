@@ -93,3 +93,46 @@ export function Shield(props: IconProps) {
     </Svg>
   );
 }
+
+export function Sun(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" />
+    </Svg>
+  );
+}
+
+export function Moon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9Z" />
+    </Svg>
+  );
+}
+
+export function Menu(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </Svg>
+  );
+}
+
+export function Close(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m5 5 14 14M19 5 5 19" />
+    </Svg>
+  );
+}
+
+/** Marks a link that leaves this site, as on the other Bulwark sites. */
+export function ArrowUpRight(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M7 17 17 7" />
+      <path d="M8 7h9v9" />
+    </Svg>
+  );
+}

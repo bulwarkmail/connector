@@ -418,51 +418,108 @@ h3 {
 }
 
 /* ----------------------------------------------------------------------
-   Nav. Every control is 36px high; the nav sits on the field.
+   Nav. Byte-for-byte the block bulwarkmail.org and
+   extensions.bulwarkmail.org use, so the three sites share one header.
+   Every control is 36px high; the nav sits on the field and is not sticky.
    ---------------------------------------------------------------------- */
 .bw-nav-in {
   display: flex;
   align-items: center;
   gap: 36px;
-  height: 72px;
+  height: 64px;
 }
 .bw-brandmark {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: var(--bw-body);
   font-weight: 600;
+  font-size: 18px;
   letter-spacing: -0.01em;
+  white-space: nowrap;
   color: inherit;
   text-decoration: none;
 }
-.bw-brandmark span {
+/* The site name after "Bulwark" is the same size at regular weight. */
+.bw-wordmark-sub {
   font-weight: 400;
-  opacity: 0.85;
 }
 .bw-nav-links {
   display: flex;
-  align-items: center;
   gap: 28px;
-  margin-left: auto;
   font-size: 14.5px;
+  margin-right: auto;
 }
+/* inline-flex keeps an external link's arrow on the same line as its label. */
 .bw-nav-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: inherit;
   text-decoration: none;
 }
-.bw-nav-links a:hover {
+.bw-nav-links a[aria-current="page"] {
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+.bw-nav-links a:hover,
+.bw-nav-menu a:hover {
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-@media (max-width: 640px) {
+.bw-nav-r {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.bw-iconbtn {
+  width: var(--bw-control-height);
+  height: var(--bw-control-height);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border: 1px solid var(--bw-control);
+  border-radius: var(--bw-radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.bw-nav-menu {
+  display: grid;
+  gap: 4px;
+  padding-block: 8px 20px;
+  font-size: 16px;
+}
+.bw-nav-menu a {
+  padding: 10px 0;
+  border-top: 1px solid var(--bw-rule);
+  color: inherit;
+  text-decoration: none;
+}
+.bw-nav-menu .bw-btn {
+  margin-top: 12px;
+  justify-content: space-between;
+  border-top: 0;
+  padding: 12px 20px;
+}
+@media (max-width: 900px) {
   .bw-nav-in {
-    gap: 16px;
+    gap: 12px;
     height: 60px;
   }
-  .bw-nav-links {
-    gap: 18px;
-    font-size: 14px;
+  .bw-nav-links,
+  .bw-nav-r .bw-btn {
+    display: none;
+  }
+  .bw-nav-r {
+    gap: 8px;
+  }
+}
+@media (min-width: 901px) {
+  .bw-nav-phone {
+    display: none;
   }
 }
 
@@ -690,7 +747,7 @@ select.bw-input {
 }
 .bw-foot-in {
   display: grid;
-  grid-template-columns: 4fr 2fr 2fr;
+  grid-template-columns: 4fr repeat(3, 2fr);
   gap: 32px;
 }
 .bw-foot-brand {

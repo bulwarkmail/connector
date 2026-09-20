@@ -37,12 +37,12 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
-// The system themes with `.dark` on <html>, set before first paint. Here it
-// follows the operating system and is never stored: this site remembers one
-// thing about a visitor (their instance list), and a theme preference is not
-// worth becoming the second. Inline because it has to run before the first
-// paint; `try` because a blocked matchMedia must not stop the page.
-const THEME_SCRIPT = `try{if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.classList.add("dark")}catch(e){}`;
+// Theme before first paint, so there is no flash: the stored choice if there
+// is one, otherwise whatever the operating system asks for. Inline because it
+// has to run before the first paint, and wrapped in try because blocked
+// storage must not stop the page. The toggle is in the nav, as on the other
+// Bulwark sites; the choice stays in this browser like everything else here.
+const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";if(t==="dark")document.documentElement.classList.add("dark")}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

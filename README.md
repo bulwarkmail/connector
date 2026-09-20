@@ -21,7 +21,8 @@ Your Bulwark takes it from there.
 
 ## What is stored
 
-Your list of servers, in this browser's `localStorage`. Nothing else.
+Your list of servers and your light or dark choice, in this browser's
+`localStorage`. Nothing else, and neither leaves the browser.
 
 There is no account, no database, no cookie and no analytics. The site cannot
 log which links are opened: every page is a static file, and the redirect

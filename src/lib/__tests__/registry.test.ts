@@ -134,7 +134,9 @@ describe("validateParams", () => {
     expect(result).toEqual({ ok: true, params: { ref: "a1b2c3d4" } });
   });
 
-  it.each(["../admin", "a/b", "a\\b", "a?b", "a#b", ".", ".."])(
+  // The percent-encoded ones matter because the instance decodes a mailbox
+  // ref twice on the way in, so "..%2Fadmin" would arrive there as "../admin".
+  it.each(["../admin", "a/b", "a\\b", "a?b", "a#b", ".", "..", "..%2Fadmin", "a%2e%2e"])(
     "rejects the mailbox ref %j",
     (ref) => {
       expect(validateParams(target("mail_folder"), { ref }).ok).toBe(false);

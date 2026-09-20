@@ -260,8 +260,11 @@ function validateOne(spec: ParamSpec, value: string): string | null {
       return isRealDate(value) ? null : "is not a YYYY-MM-DD date";
     case "id":
       // Opaque, but it becomes one path segment on the instance, so it may not
-      // contain anything that could climb out of it.
-      return /[/\\?#]/.test(value) || value === "." || value === ".."
+      // contain anything that could climb out of it. `%` is refused along with
+      // the separators because the instance decodes the value twice on the way
+      // in, so `..%2Fadmin` would arrive there as `../admin`. Real JMAP ids
+      // have no percent signs in them.
+      return /[/\\?#%]/.test(value) || value === "." || value === ".."
         ? "is not a valid id"
         : null;
     case "path": {

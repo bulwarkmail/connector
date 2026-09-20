@@ -1,0 +1,129 @@
+name: Deploy
+
+# Puts every push to main on https://connector.bulwarkmail.org (mail.rath.li).
+# "Run workflow" redeploys main, or rolls back to the previous release.
+#
+# The runner builds the static export, checks the exact files it is about to
+# ship, then streams them over SSH to
+# /usr/local/bin/bulwarkmail-connector-deploy on the server
+# (deploy/connector-deploy.sh), which switches, health-checks through nginx
+# and rolls back on failure. Nothing is built on the server.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "What to do"
+        type: choice
+        options: [deploy, rollback]
+        default: deploy
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-connector
+  cancel-in-progress: false
+
+env:
+  DEPLOY_HOST: 62.176.249.204
+  DEPLOY_USER: ubuntu
+  # ED25519 host key of mail.rath.li (SHA256:KJU3AEoj23/nBmHDF5w8o+wfRQcQTLdg3HHBrmlMdSQ).
+  DEPLOY_HOST_KEY: "62.176.249.204 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINOvbgUpI8cbxGf9nLOZlaG+0xd/bkJosDpBTyMxuurC"
+
+jobs:
+  deploy:
+    name: ${{ inputs.action == 'rollback' && 'Roll back' || 'Build and deploy' }}
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      # A push has no inputs; it always deploys.
+      ACTION: ${{ inputs.action || 'deploy' }}
+    environment:
+      name: production
+      url: https://connector.bulwarkmail.org
+    steps:
+      - uses: actions/checkout@v7
+        if: env.ACTION == 'deploy'
+
+      - uses: actions/setup-node@v7
+        if: env.ACTION == 'deploy'
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        if: env.ACTION == 'deploy'
+        run: npm ci
+
+      - name: Lint, typecheck and test
+        if: env.ACTION == 'deploy'
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+
+      - name: Build
+        if: env.ACTION == 'deploy'
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Privacy check
+        if: env.ACTION == 'deploy'
+        run: npm run check:privacy
+
+      - name: Assemble the release
+        if: env.ACTION == 'deploy'
+        run: |
+          set -euo pipefail
+          test -f out/index.html && test -f out/404.html && test -d out/settings
+          tar -czf release.tgz -C out .
+          du -h release.tgz
+
+      - name: Check that the release serves
+        if: env.ACTION == 'deploy'
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/smoke"
+          mkdir -p "$work" && tar -xzf release.tgz -C "$work"
+          npx --yes serve "$work" -l 3100 > "$RUNNER_TEMP/serve.log" 2>&1 &
+          for i in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:3100/ && break; sleep 1; done
+          for path in / /add /instances /create-link /settings /admin_extension; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3100${path}")
+            echo "$path $code"
+            [ "$code" = 200 ]
+          done
+          grep -q "Bulwark Connector" "$work/index.html"
+
+      - name: Show the server log
+        if: failure() && env.ACTION == 'deploy'
+        run: cat "$RUNNER_TEMP/serve.log" || true
+
+      - name: Set up SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_HOST_KEY" > ~/.ssh/known_hosts
+
+      - name: Deploy
+        if: env.ACTION == 'deploy'
+        run: ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" "deploy $GITHUB_SHA" < release.tgz
+
+      - name: Roll back
+        if: env.ACTION == 'rollback'
+        run: ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" rollback
+
+      - name: Check the live site
+        run: |
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' https://connector.bulwarkmail.org/)
+            [ "$code" = 200 ] && { echo "live: $code"; exit 0; }
+            sleep 3
+          done
+          echo "live site answered $code"; exit 1

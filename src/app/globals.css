@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+/* ======================================================================
+   A trimmed copy of the Bulwark "Flat fields" tokens used by the website,
+   kept to what these few pages actually need. The full system is documented
+   in local-data/design-system.md of the webmail checkout.
+
+   The theme follows the operating system and nothing else: no toggle, no
+   stored preference. This site remembers exactly one thing about a visitor
+   (their instance list) and a theme choice is not worth becoming the second.
+   ====================================================================== */
+
+:root {
+  --bw-page: #ffffff;
+  --bw-surface: #f4f4f5;
+  --bw-text: #18181b;
+  --bw-text-muted: #56565d;
+  --bw-rule: #dddde1;
+  --bw-control: #7f7f87;
+
+  --bw-brand: #db2d54;
+  --bw-on-brand: #ffffff;
+  --bw-link: #c01f46;
+  --bw-focus: #c01f46;
+
+  --bw-error: #b42318;
+  --bw-warning: #8a5d00;
+  --bw-success: #17784a;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bw-page: #131315;
+    --bw-surface: #1f1f22;
+    --bw-text: #f2f2f3;
+    --bw-text-muted: #a1a1a9;
+    --bw-rule: #2e2e33;
+    --bw-control: #6b6b73;
+
+    --bw-brand: #ec4467;
+    --bw-on-brand: #18181b;
+    --bw-link: #f07a94;
+    --bw-focus: #f07a94;
+
+    --bw-error: #f07a72;
+    --bw-warning: #e0b35c;
+    --bw-success: #5bc48f;
+
+    color-scheme: dark;
+  }
+}
+
+/* `inline` so the utilities resolve the custom property at use time, which
+   is what lets the media query above re-theme everything at once. */
+@theme inline {
+  --color-page: var(--bw-page);
+  --color-surface: var(--bw-surface);
+  --color-ink: var(--bw-text);
+  --color-muted: var(--bw-text-muted);
+  --color-rule: var(--bw-rule);
+  --color-control: var(--bw-control);
+  --color-brand: var(--bw-brand);
+  --color-on-brand: var(--bw-on-brand);
+  --color-link: var(--bw-link);
+  --color-error: var(--bw-error);
+  --color-warning: var(--bw-warning);
+  --color-success: var(--bw-success);
+
+  --font-sans: var(--font-hanken), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, Consolas, monospace;
+
+  --radius-control: 2px;
+}
+
+* {
+  border-color: var(--bw-rule);
+}
+
+html {
+  background: var(--bw-page);
+}
+
+body {
+  background: var(--bw-page);
+  color: var(--bw-text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--bw-link);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--bw-focus);
+  outline-offset: 2px;
+}
+
+/* --- controls ---------------------------------------------------------- */
+
+.bw-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--bw-control);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--bw-text);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+
+.bw-button:hover:not(:disabled) {
+  background: var(--bw-surface);
+  text-decoration: none;
+}
+
+.bw-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bw-button-primary {
+  border-color: var(--bw-brand);
+  background: var(--bw-brand);
+  color: var(--bw-on-brand);
+}
+
+.bw-button-primary:hover:not(:disabled) {
+  background: var(--bw-link);
+  border-color: var(--bw-link);
+}
+
+.bw-button-danger {
+  border-color: var(--bw-error);
+  color: var(--bw-error);
+}
+
+.bw-input,
+.bw-select {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--bw-control);
+  border-radius: 2px;
+  background: var(--bw-page);
+  color: var(--bw-text);
+  font: inherit;
+  font-size: 15px;
+}
+
+.bw-input::placeholder {
+  color: var(--bw-text-muted);
+}
+
+.bw-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13.5px;
+  color: var(--bw-text-muted);
+}
+
+.bw-tile {
+  border: 1px solid var(--bw-rule);
+  border-radius: 2px;
+  background: var(--bw-page);
+  padding: 20px;
+}
+
+.bw-code {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  background: var(--bw-surface);
+  padding: 2px 5px;
+  border-radius: 2px;
+  overflow-wrap: anywhere;
+}

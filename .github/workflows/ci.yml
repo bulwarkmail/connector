@@ -1,0 +1,71 @@
+name: CI
+
+# Lints, typechecks, tests and builds. The build is not optional here: the
+# static export is what scripts/check-privacy.mjs inspects, and that check is
+# the only thing standing between a careless dependency and the promise the
+# site makes on its front page.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, test and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Privacy check
+        run: npm run check:privacy
+
+      - name: Check that the export serves
+        run: |
+          set -euo pipefail
+          npx --yes serve out -l 3100 > "$RUNNER_TEMP/serve.log" 2>&1 &
+          for i in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:3100/ && break; sleep 1; done
+          for path in / /add /instances /create-link /settings /admin_extension; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3100${path}")
+            echo "$path $code"
+            [ "$code" = 200 ]
+          done
+          # A target the registry does not have must not resolve to a page.
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3100/not_a_target)
+          echo "/not_a_target $code"
+          [ "$code" = 404 ]
+
+      - name: Show the server log
+        if: failure()
+        run: cat "$RUNNER_TEMP/serve.log" || true

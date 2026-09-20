@@ -1,0 +1,6 @@
+# Everything is checked out with LF. The deploy script runs on Linux, where a
+# CRLF shebang line fails with "bad interpreter", and the workflows are read
+# by the same shell.
+* text=auto eol=lf
+*.svg text eol=lf
+*.png binary

@@ -45,6 +45,15 @@ Three things enforce that rather than promising it:
 The dependency list is deliberately three packages: Next, React and ReactDOM.
 Nothing that runs in a visitor's browser comes from anywhere else.
 
+One honest caveat about the CSP: `script-src` allows `'unsafe-inline'`,
+because Next's hydration payload is a set of inline `<script>` blocks and a
+static export has no per-request nonce to sign them with. It is tolerable here
+only because these pages render no untrusted content into markup — the error
+cards name a bad parameter without ever echoing its value — so there is no
+injection point for an inline script to arrive through. If that stops being
+true, generate the union of the inline scripts' sha256 hashes at build time
+and list those instead.
+
 ## The registry
 
 `src/lib/registry.ts` lists every destination a link can name, and the shape of

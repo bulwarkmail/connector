@@ -59,7 +59,7 @@ releases_newest_first() {
 
 prune_old_releases() {
   local cur old dir
-  cur=$(readlink -f "$BASE/current" 2>/dev/null || true)
+  cur=$(current_release)
   old=$(releases_newest_first | grep -vxF "$cur" | tail -n +"$KEEP_RELEASES")
   [[ -n "$old" ]] || return 0
   while IFS= read -r dir; do
@@ -71,6 +71,24 @@ prune_old_releases() {
 switch_to() {
   ln -sfn "$1" "$BASE/current.next"
   mv -Tf "$BASE/current.next" "$BASE/current"
+}
+
+# The release `current` points at, or "" when there is none.
+#
+# Not a bare `readlink -f`: that happily resolves a path that does not exist,
+# so on the very first deploy it returns "$BASE/current" itself. Rolling back
+# to that on a failed health check pointed the symlink at itself.
+#
+# Always succeeds. Under `set -e`, a non-zero return here would take the whole
+# script down at `cur=$(current_release)`.
+current_release() {
+  [[ -L "$BASE/current" ]] || return 0
+  local target
+  target=$(readlink -f "$BASE/current" 2>/dev/null) || return 0
+  if [[ "$target" == "$BASE"/releases/* && -d "$target" ]]; then
+    echo "$target"
+  fi
+  return 0
 }
 
 cmd=${SSH_ORIGINAL_COMMAND:-${1:-}}
@@ -90,13 +108,13 @@ case "$cmd" in
       { log "not a release tarball"; rm -rf "$rel"; exit 3; }
     echo "$sha" > "$rel/REVISION"
 
-    previous=$(readlink -f "$BASE/current" 2>/dev/null || true)
+    previous=$(current_release)
     switch_to "$rel"
     if healthy; then
       log "live: $(basename "$rel")"
     else
       log "health check failed"
-      if [[ -n "$previous" && -d "$previous" ]]; then
+      if [[ -n "$previous" ]]; then
         switch_to "$previous"
         log "back on $(basename "$previous")"
       fi
@@ -107,7 +125,7 @@ case "$cmd" in
     ;;
 
   rollback)
-    cur=$(readlink -f "$BASE/current")
+    cur=$(current_release)
     prev=$(releases_newest_first | grep -vxF "$cur" | head -n 1 || true)
     [[ -n "$prev" ]] || { log "no earlier release to roll back to"; exit 5; }
     switch_to "$prev"
@@ -115,8 +133,9 @@ case "$cmd" in
     ;;
 
   status)
-    if [[ -L "$BASE/current" ]]; then
-      echo "current: $(basename "$(readlink -f "$BASE/current")")"
+    cur=$(current_release)
+    if [[ -n "$cur" ]]; then
+      echo "current: $(basename "$cur")"
     else
       echo "current: none"
     fi

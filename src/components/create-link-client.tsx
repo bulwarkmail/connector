@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { buildConnectorUrl, validateParams, type ParamSpec, type Target } from "@/lib/registry";
+import { SiteShell } from "./site-shell";
+import { Alert, Check } from "./icons";
 
 const SITE = "https://connector.bulwarkmail.org";
 
@@ -25,96 +27,103 @@ export function CreateLinkClient({ targets }: { targets: readonly Target[] }) {
   const validation = target ? validateParams(target, filled) : null;
   const valid = validation?.ok ?? false;
   const url = target ? buildConnectorUrl(SITE, target.name, filled) : "";
-
-  const groups = ["App", "Admin"] as const;
+  const query = Object.keys(filled).length ? `?${new URLSearchParams(filled)}` : "";
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
-      <div className="bw-tile self-start">
-        <div>
-          <label className="bw-label" htmlFor="target">
-            What should the link open?
-          </label>
-          <select
-            id="target"
-            className="bw-select"
-            value={target?.name ?? ""}
-            onChange={(event) => {
-              setName(event.target.value);
-              setValues({});
-            }}
-          >
-            {groups.map((group) => (
-              <optgroup key={group} label={group}>
-                {targets
-                  .filter((t) => t.group === group)
-                  .map((t) => (
-                    <option key={t.name} value={t.name}>
-                      {t.label}
-                    </option>
-                  ))}
-              </optgroup>
-            ))}
-          </select>
-          {target ? <p className="mt-2 text-[13.5px] text-muted">{target.description}</p> : null}
-        </div>
-
-        {specs.map(([key, spec]) => (
-          <ParamField
-            key={key}
-            name={key}
-            spec={spec}
-            value={values[key] ?? ""}
-            onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
-          />
-        ))}
-
-        <div className="mt-4">
-          <label className="bw-label" htmlFor="link-text">
-            Link text
-          </label>
-          <input
-            id="link-text"
-            className="bw-input"
-            value={label}
-            onChange={(event) => setLabel(event.target.value)}
-          />
-        </div>
-
-        {validation && !validation.ok ? (
-          <p className="mt-4 text-[15px] text-error" role="alert">
-            <span className="bw-code">{validation.param}</span> {validation.reason}.
+    <SiteShell
+      head={
+        <>
+          <h1 className="bw-h1">Make a link.</h1>
+          <p className="bw-lead">
+            For documentation, release notes, READMEs and support replies. The link opens on
+            whichever Bulwark the reader has told this site about - you never need to know where
+            that is.
           </p>
-        ) : null}
+        </>
+      }
+    >
+      <div className="grid gap-12 lg:grid-cols-2">
+        <form className="bw-form" onSubmit={(event) => event.preventDefault()}>
+          <div className="bw-form-field">
+            <label className="bw-label" htmlFor="target">
+              What should the link open?
+            </label>
+            <select
+              id="target"
+              className="bw-input"
+              value={target?.name ?? ""}
+              onChange={(event) => {
+                setName(event.target.value);
+                setValues({});
+              }}
+            >
+              {(["App", "Admin"] as const).map((group) => (
+                <optgroup key={group} label={group}>
+                  {targets
+                    .filter((t) => t.group === group)
+                    .map((t) => (
+                      <option key={t.name} value={t.name}>
+                        {t.label}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
+            </select>
+            {target ? <p className="bw-help">{target.description}</p> : null}
+          </div>
 
-        {target ? (
-          <p className="mt-4 text-[13.5px] text-muted">
-            Needs Bulwark {target.minVersion} or later. Older instances show a note instead of
-            failing.
-          </p>
-        ) : null}
-      </div>
+          {specs.map(([key, spec]) => (
+            <ParamField
+              key={key}
+              name={key}
+              spec={spec}
+              value={values[key] ?? ""}
+              invalid={validation && !validation.ok && validation.param === key}
+              onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
+            />
+          ))}
 
-      <div className="space-y-4">
-        <Snippet title="Link" value={valid ? url : ""} />
-        <Snippet title="Markdown" value={valid ? `[${label}](${url})` : ""} />
-        <Snippet
-          title="Docs shorthand"
-          value={
-            valid && target
-              ? `[${label}](connector:${target.name}${
-                  Object.keys(filled).length ? `?${new URLSearchParams(filled)}` : ""
-                })`
-              : ""
-          }
-          note="Inside the bulwarkmail.org docs, remark-connector-link expands this."
-        />
-        <Snippet
-          title="HTML"
-          value={valid ? `<a href="${url}" rel="noreferrer">${label}</a>` : ""}
-        />
+          <div className="bw-form-field">
+            <label className="bw-label" htmlFor="link-text">
+              Link text
+            </label>
+            <input
+              id="link-text"
+              className="bw-input"
+              value={label}
+              onChange={(event) => setLabel(event.target.value)}
+            />
+          </div>
+
+          {validation && !validation.ok ? (
+            <p className="bw-help bw-help-error" role="alert">
+              <Alert size={16} />
+              <span>
+                <code className="bw-code">{validation.param}</code> {validation.reason}.
+              </span>
+            </p>
+          ) : null}
+
+          {target ? (
+            <p className="bw-note">
+              <b>Note.</b> Needs Bulwark {target.minVersion} or later. An older instance shows a
+              note instead of failing.
+            </p>
+          ) : null}
+        </form>
+
+        <div className="bw-stack">
+          <Snippet title="Link" value={valid ? url : ""} />
+          <Snippet title="Markdown" value={valid ? `[${label}](${url})` : ""} />
+          <Snippet
+            title="Docs shorthand"
+            value={valid && target ? `[${label}](connector:${target.name}${query})` : ""}
+            note="Inside the bulwarkmail.org docs, remark-connector-link expands this."
+          />
+          <Snippet title="HTML" value={valid ? `<a href="${url}" rel="noreferrer">${label}</a>` : ""} />
+        </div>
       </div>
-    </div>
+    </SiteShell>
   );
 }
 
@@ -122,24 +131,30 @@ function ParamField({
   name,
   spec,
   value,
+  invalid,
   onChange,
 }: {
   name: string;
   spec: ParamSpec;
   value: string;
+  invalid: boolean | null;
   onChange: (value: string) => void;
 }) {
   const id = `param-${name}`;
   const required = "required" in spec && spec.required;
 
   return (
-    <div className="mt-4">
+    <div className="bw-form-field">
       <label className="bw-label" htmlFor={id}>
         {name}
-        {required ? "" : " (optional)"}
       </label>
       {spec.type === "enum" ? (
-        <select id={id} className="bw-select" value={value} onChange={(e) => onChange(e.target.value)}>
+        <select
+          id={id}
+          className="bw-input"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
           <option value="">{required ? "Choose one" : "Not set"}</option>
           {spec.values.map((option) => (
             <option key={option} value={option}>
@@ -154,6 +169,7 @@ function ParamField({
             className="bw-input"
             value={value}
             placeholder={placeholderFor(spec)}
+            aria-invalid={invalid ? true : undefined}
             list={spec.type === "id" && spec.suggest ? `${id}-suggest` : undefined}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -166,6 +182,7 @@ function ParamField({
           ) : null}
         </>
       )}
+      <p className="bw-help">{required ? "Required." : "Optional."}</p>
     </div>
   );
 }
@@ -199,15 +216,22 @@ function Snippet({ title, value, note }: { title: string; value: string; note?: 
   };
 
   return (
-    <div className="bw-tile">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-[15px] text-muted">{title}</h2>
-        <button type="button" className="bw-button" onClick={copy} disabled={!value}>
-          {copied ? "Copied" : "Copy"}
+    <div>
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <h2 className="bw-label">{title}</h2>
+        <button type="button" className="bw-btn bw-btn-ghost bw-btn-sm" onClick={copy} disabled={!value}>
+          {copied ? (
+            <>
+              <Check size={16} />
+              Copied
+            </>
+          ) : (
+            "Copy"
+          )}
         </button>
       </div>
-      <p className="mt-3 bw-code block break-all">{value || "—"}</p>
-      {note ? <p className="mt-2 text-[13.5px] text-muted">{note}</p> : null}
+      <pre className="bw-codeblock">{value || "—"}</pre>
+      {note ? <p className="bw-help mt-2">{note}</p> : null}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { normaliseInstanceUrl, type NormalisedInstance } from "@/lib/instance-url";
 import { probeInstance } from "@/lib/probe";
 import { addInstance, type Instance, type Store } from "@/lib/instances";
+import { Alert } from "./icons";
 
 interface InstanceFormProps {
   store: Store;
@@ -85,21 +86,23 @@ export function InstanceForm({
 
   if (phase.kind === "unreachable") {
     return (
-      <div className="bw-tile">
-        <h2 className="text-[21px]">Could not check that address</h2>
-        <p className="mt-2 text-[15px] text-muted">{phase.message}</p>
-        <p className="mt-3 text-[15px]">
-          <span className="bw-code">{phase.instance.display}</span>
+      <div className="bw-stack max-w-[560px]">
+        <div>
+          <h3 className="bw-h3">Could not check that address</h3>
+          <p className="bw-help mt-2">{phase.message}</p>
+        </div>
+        <p className="bw-small">
+          <code className="bw-code">{phase.instance.display}</code>
         </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button
-            type="button"
-            className="bw-button"
-            onClick={() => save(phase.instance, { verified: false })}
-          >
+        <div className="bw-btns">
+          <button type="button" className="bw-btn" onClick={() => save(phase.instance, { verified: false })}>
             Add anyway
           </button>
-          <button type="button" className="bw-button" onClick={() => setPhase({ kind: "editing" })}>
+          <button
+            type="button"
+            className="bw-btn bw-btn-ghost"
+            onClick={() => setPhase({ kind: "editing" })}
+          >
             Change the address
           </button>
         </div>
@@ -107,9 +110,11 @@ export function InstanceForm({
     );
   }
 
+  const checking = phase.kind === "checking";
+
   return (
-    <form onSubmit={submit} className="bw-tile">
-      <div>
+    <form onSubmit={submit} className="bw-form">
+      <div className="bw-form-field">
         <label className="bw-label" htmlFor="instance-url">
           Address of your Bulwark
         </label>
@@ -122,22 +127,32 @@ export function InstanceForm({
           spellCheck={false}
           placeholder="mail.example.com"
           value={value}
+          aria-invalid={error ? true : undefined}
+          aria-describedby="instance-url-help"
           onChange={(event) => {
             setValue(event.target.value);
             setError(null);
           }}
-          disabled={phase.kind === "checking"}
+          disabled={checking}
         />
-        {parsed.ok && parsed.value.display !== value.trim() ? (
-          <p className="mt-2 text-[13.5px] text-muted">
-            Will use <span className="bw-code">{parsed.value.origin}{parsed.value.basePath}</span>
-          </p>
-        ) : null}
+        <p className="bw-help" id="instance-url-help">
+          {parsed.ok && `${parsed.value.origin}${parsed.value.basePath}` !== value.trim() ? (
+            <>
+              Will use{" "}
+              <code className="bw-code">
+                {parsed.value.origin}
+                {parsed.value.basePath}
+              </code>
+            </>
+          ) : (
+            "Checked from this browser, straight to your server."
+          )}
+        </p>
       </div>
 
-      <div className="mt-4">
+      <div className="bw-form-field">
         <label className="bw-label" htmlFor="instance-label">
-          Name for it (optional)
+          Name for it
         </label>
         <input
           id="instance-label"
@@ -146,39 +161,41 @@ export function InstanceForm({
           autoComplete="off"
           placeholder="Work"
           value={label}
+          aria-describedby="instance-label-help"
           onChange={(event) => setLabel(event.target.value)}
-          disabled={phase.kind === "checking"}
+          disabled={checking}
         />
+        <p className="bw-help" id="instance-label-help">
+          Optional. Only useful once you have more than one.
+        </p>
       </div>
 
       {insecure ? (
-        <label className="mt-4 flex items-start gap-2 text-[15px]">
+        <label className="bw-check">
           <input
             type="checkbox"
-            className="mt-1"
             checked={acceptInsecure}
             onChange={(event) => setAcceptInsecure(event.target.checked)}
           />
           <span>
-            This address is unencrypted (<span className="bw-code">http</span>). That is fine on
+            This address is unencrypted (<code className="bw-code">http</code>). That is fine on
             your own machine or network, and nowhere else.
           </span>
         </label>
       ) : null}
 
+      {/* Errors carry an icon and words, never colour alone. */}
       {error ? (
-        <p className="mt-4 text-[15px] text-error" role="alert">
+        <p className="bw-help bw-help-error" role="alert">
+          <Alert size={16} />
           {error}
         </p>
       ) : null}
 
-      <div className="mt-5 flex items-center gap-3">
-        <button type="submit" className="bw-button bw-button-primary" disabled={phase.kind === "checking"}>
-          {phase.kind === "checking" ? "Checking…" : submitLabel}
+      <div className="bw-btns">
+        <button type="submit" className="bw-btn" disabled={checking}>
+          {checking ? "Checking…" : submitLabel}
         </button>
-        <p className="text-[13.5px] text-muted">
-          Checked from this browser, straight to your server.
-        </p>
       </div>
     </form>
   );

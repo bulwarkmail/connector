@@ -1,111 +1,200 @@
 @import "tailwindcss";
 
 /* ======================================================================
-   A trimmed copy of the Bulwark "Flat fields" tokens used by the website,
-   kept to what these few pages actually need. The full system is documented
-   in local-data/design-system.md of the webmail checkout.
+   Bulwark "Flat fields".
 
-   The theme follows the operating system and nothing else: no toggle, no
-   stored preference. This site remembers exactly one thing about a visitor
-   (their instance list) and a theme choice is not worth becoming the second.
+   The tokens, type scale, components and rules are the system documented in
+   local-data/design-system.md of the webmail checkout, and implemented in
+   repos/website/src/app/globals.css. Values and class names match that file
+   so the two sites cannot drift; only the components this site actually uses
+   are carried over.
+
+   Theme: `.dark` on <html>, set before first paint (layout.tsx). Unlike the
+   website there is no toggle and nothing is stored - the class follows the
+   operating system. This site remembers exactly one thing about a visitor
+   (their instance list) and a theme preference is not worth becoming the
+   second.
+
+   Edition: `data-edition="lite"` on <html> swaps four tokens to teal. The
+   tokens are here so the system is complete; nothing sets the attribute yet,
+   because the connector does not know a reader's edition until it has probed
+   their instance.
    ====================================================================== */
 
 :root {
+  /* grounds */
   --bw-page: #ffffff;
-  --bw-surface: #f4f4f5;
+  --bw-surface: #f4f4f5; /* quiet bands, footer, tile hover, notes, code */
   --bw-text: #18181b;
   --bw-text-muted: #56565d;
-  --bw-rule: #dddde1;
-  --bw-control: #7f7f87;
+  --bw-rule: #dddde1; /* tile edges, table rows, frames */
+  --bw-control: #7f7f87; /* input and ghost-button borders */
 
-  --bw-brand: #db2d54;
+  /* brand */
+  --bw-brand: #db2d54; /* primary buttons, icons, the mark, note edges */
   --bw-on-brand: #ffffff;
-  --bw-link: #c01f46;
+  --bw-field: #db2d54; /* nav, page head */
+  --bw-on-field: #ffffff;
+  --bw-link: #c01f46; /* raspberry itself is too light for small text on grey */
   --bw-focus: #c01f46;
 
+  /* fixed dark surface used on the field */
+  --bw-ink: #18181b;
+  --bw-on-ink: #f2f2f3;
+  --bw-ink-muted: #ababb2;
+
+  /* the flag of Europe, identical in both themes and editions */
+  --bw-eu-blue: #003399;
+  --bw-eu-gold: #ffcc00;
+
+  /* semantic, never the brand colour */
   --bw-error: #b42318;
   --bw-warning: #8a5d00;
   --bw-success: #17784a;
 
+  /* type */
+  --bw-font: var(--font-hanken), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bw-mono: var(--font-jetbrains), ui-monospace, Consolas, monospace;
+  --bw-h1: 60px;
+  --bw-h2: 40px;
+  --bw-h3: 21px;
+  --bw-lead: 19px;
+  --bw-body: 17px;
+  --bw-small: 15px;
+  --bw-caption: 13.5px;
+  --bw-code: 13.5px;
+  --bw-heading-weight: 400;
+  --bw-heading-tracking: -0.015em;
+
+  /* space: 8px unit with a 4px half step */
+  --bw-1: 4px;
+  --bw-2: 8px;
+  --bw-3: 12px;
+  --bw-4: 16px;
+  --bw-6: 24px;
+  --bw-8: 32px;
+  --bw-12: 48px;
+  --bw-16: 64px;
+  --bw-20: 80px;
+  --bw-30: 120px;
+  --bw-gutter: 80px;
+  --bw-section: 120px;
+  --bw-tile-pad: 28px;
+  --bw-content: 1120px;
+
+  /* shape and motion */
+  --bw-radius: 0px;
+  --bw-radius-control: 2px;
+  --bw-border: 1px;
+  --bw-control-height: 36px;
+  --bw-motion: 120ms ease-out;
+
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+.dark {
+  --bw-page: #131315;
+  --bw-surface: #1f1f22;
+  --bw-text: #f2f2f3;
+  --bw-text-muted: #ababb2;
+  --bw-rule: #36363b;
+  --bw-control: #85858d;
+  --bw-field: #c4264b; /* a step darker so white text reaches 5.6:1 */
+  --bw-link: #ff91a8;
+  --bw-focus: #ff91a8;
+  --bw-error: #ff9b8f;
+  --bw-warning: #e2b341;
+  --bw-success: #4cc38a;
+
+  color-scheme: dark;
+}
+
+:root[data-edition="lite"] {
+  --bw-brand: #0f8578;
+  --bw-field: #0f8578;
+  --bw-link: #0a6b60;
+  --bw-focus: #0a6b60;
+}
+.dark[data-edition="lite"] {
+  --bw-field: #0c7267;
+  --bw-link: #6fd3c5;
+  --bw-focus: #6fd3c5;
+}
+
+@media (max-width: 640px) {
   :root {
-    --bw-page: #131315;
-    --bw-surface: #1f1f22;
-    --bw-text: #f2f2f3;
-    --bw-text-muted: #a1a1a9;
-    --bw-rule: #2e2e33;
-    --bw-control: #6b6b73;
-
-    --bw-brand: #ec4467;
-    --bw-on-brand: #18181b;
-    --bw-link: #f07a94;
-    --bw-focus: #f07a94;
-
-    --bw-error: #f07a72;
-    --bw-warning: #e0b35c;
-    --bw-success: #5bc48f;
-
-    color-scheme: dark;
+    --bw-h1: 36px;
+    --bw-h2: 28px;
+    --bw-h3: 19px;
+    --bw-lead: 17px;
+    --bw-body: 16px;
+    --bw-gutter: 20px;
+    --bw-section: 64px;
+    --bw-tile-pad: 20px;
   }
 }
 
-/* `inline` so the utilities resolve the custom property at use time, which
-   is what lets the media query above re-theme everything at once. */
-@theme inline {
-  --color-page: var(--bw-page);
-  --color-surface: var(--bw-surface);
-  --color-ink: var(--bw-text);
-  --color-muted: var(--bw-text-muted);
-  --color-rule: var(--bw-rule);
-  --color-control: var(--bw-control);
-  --color-brand: var(--bw-brand);
-  --color-on-brand: var(--bw-on-brand);
-  --color-link: var(--bw-link);
-  --color-error: var(--bw-error);
-  --color-warning: var(--bw-warning);
-  --color-success: var(--bw-success);
-
-  --font-sans: var(--font-hanken), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, Consolas, monospace;
-
-  --radius-control: 2px;
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --bw-motion: 0ms;
+  }
 }
 
+/* The shadcn-style aliases Tailwind 4 reads, pointed at the tokens. */
+@theme inline {
+  --color-background: var(--bw-page);
+  --color-foreground: var(--bw-text);
+  --color-primary: var(--bw-brand);
+  --color-primary-foreground: var(--bw-on-brand);
+  --color-muted: var(--bw-surface);
+  --color-muted-foreground: var(--bw-text-muted);
+  --color-border: var(--bw-rule);
+  --color-ring: var(--bw-focus);
+  --font-sans: var(--bw-font);
+  --font-mono: var(--bw-mono);
+}
+
+/* ----------------------------------------------------------------------
+   Base
+   ---------------------------------------------------------------------- */
 * {
   border-color: var(--bw-rule);
 }
 
 html {
+  overflow-x: hidden;
   background: var(--bw-page);
 }
 
 body {
   background: var(--bw-page);
   color: var(--bw-text);
-  font-family: var(--font-sans);
-  font-size: 17px;
-  line-height: 1.6;
+  font-family: var(--bw-font);
+  font-size: var(--bw-body);
+  line-height: 1.55;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 
 h1,
 h2,
 h3 {
-  font-weight: 400;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
+  font-weight: var(--bw-heading-weight);
+  letter-spacing: var(--bw-heading-tracking);
+  text-wrap: balance;
 }
 
-a {
-  color: var(--bw-link);
-  text-underline-offset: 3px;
+::selection {
+  background-color: color-mix(in srgb, var(--bw-brand) 22%, transparent);
+  color: var(--bw-text);
 }
 
-a:hover {
-  text-decoration: underline;
+/* On the field a brand-tinted selection would be pink on raspberry, so
+   selected text there turns white with ink text instead. */
+.bw-field::selection,
+.bw-field ::selection {
+  background-color: var(--bw-on-field);
+  color: var(--bw-ink);
 }
 
 :focus-visible {
@@ -113,87 +202,566 @@ a:hover {
   outline-offset: 2px;
 }
 
-/* --- controls ---------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--bw-rule);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--bw-control);
+}
 
-.bw-button {
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ----------------------------------------------------------------------
+   Layout
+   ---------------------------------------------------------------------- */
+.bw-w {
+  width: 100%;
+  max-width: calc(var(--bw-content) + 2 * var(--bw-gutter));
+  margin-inline: auto;
+  padding-inline: var(--bw-gutter);
+}
+.bw-sec {
+  padding-block: var(--bw-section);
+}
+.bw-sec-tight {
+  /* Top only, as on the website: blocks stack, so padding on both sides
+     would double the gap between them. */
+  padding-block: calc(var(--bw-section) * 0.6) 0;
+}
+/* The content column between the field and the footer. */
+.bw-main {
+  padding-block: calc(var(--bw-section) * 0.6) var(--bw-section);
+}
+.bw-band {
+  background: var(--bw-surface);
+}
+
+/* Anything on the field remaps the neutral tokens, so the components inside
+   need no "on field" variants of their own. */
+.bw-field {
+  background: var(--bw-field);
+  color: var(--bw-on-field);
+  --bw-text: var(--bw-on-field);
+  --bw-text-muted: var(--bw-on-field);
+  --bw-rule: color-mix(in srgb, var(--bw-on-field) 55%, transparent);
+  --bw-control: var(--bw-on-field);
+  --bw-focus: var(--bw-on-field);
+  --bw-link: var(--bw-on-field);
+}
+
+.bw-h1 {
+  font-size: var(--bw-h1);
+  line-height: 1.06;
+}
+.bw-h2 {
+  font-size: var(--bw-h2);
+  line-height: 1.12;
+}
+.bw-h3 {
+  font-size: var(--bw-h3);
+  line-height: 1.2;
+}
+.bw-lead {
+  font-size: var(--bw-lead);
+  line-height: 1.45;
+  color: var(--bw-text-muted);
+  max-width: 34em;
+}
+.bw-small {
+  font-size: var(--bw-small);
+  line-height: 1.5;
+}
+.bw-muted {
+  color: var(--bw-text-muted);
+}
+.bw-body {
+  max-width: 66ch;
+}
+
+/* Page head: the field carries the nav and the heading under it. */
+.bw-head {
+  padding-block: 56px 64px;
+}
+.bw-head .bw-lead {
+  margin-top: 14px;
+  color: var(--bw-on-field);
+}
+@media (max-width: 640px) {
+  .bw-head {
+    padding-block: 32px 40px;
+  }
+}
+
+.bw-stack {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+
+/* ----------------------------------------------------------------------
+   Buttons and links
+   ---------------------------------------------------------------------- */
+.bw-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 36px;
-  padding: 0 16px;
-  border: 1px solid var(--bw-control);
-  border-radius: 2px;
-  background: transparent;
-  color: var(--bw-text);
-  font: inherit;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 120ms ease-out, border-color 120ms ease-out;
-}
-
-.bw-button:hover:not(:disabled) {
-  background: var(--bw-surface);
-  text-decoration: none;
-}
-
-.bw-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.bw-button-primary {
-  border-color: var(--bw-brand);
+  gap: 10px;
+  padding: 12px 20px;
+  font-size: var(--bw-small);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
   background: var(--bw-brand);
   color: var(--bw-on-brand);
+  border: 1px solid var(--bw-brand);
+  border-radius: var(--bw-radius-control);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--bw-motion),
+    color var(--bw-motion),
+    border-color var(--bw-motion);
 }
-
-.bw-button-primary:hover:not(:disabled) {
-  background: var(--bw-link);
-  border-color: var(--bw-link);
+.bw-btn:hover:not(:disabled) {
+  background: var(--bw-text);
+  border-color: var(--bw-text);
+  color: var(--bw-page);
 }
-
-.bw-button-danger {
-  border-color: var(--bw-error);
-  color: var(--bw-error);
+.bw-btn:disabled {
+  background: var(--bw-surface);
+  border-color: var(--bw-rule);
+  color: var(--bw-text-muted);
+  cursor: not-allowed;
 }
-
-.bw-input,
-.bw-select {
-  width: 100%;
-  min-height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--bw-control);
-  border-radius: 2px;
-  background: var(--bw-page);
+.bw-btn-ghost {
+  background: transparent;
   color: var(--bw-text);
-  font: inherit;
-  font-size: 15px;
+  border-color: var(--bw-control);
+}
+.bw-btn-ghost:disabled {
+  background: var(--bw-surface);
+}
+.bw-btn-sm {
+  height: var(--bw-control-height);
+  padding: 0 14px;
+  font-size: var(--bw-caption);
+}
+.bw-btn svg {
+  flex: none;
+}
+/* On the field the primary button is white with ink text. */
+.bw-field .bw-btn:not(.bw-btn-ghost) {
+  background: var(--bw-on-field);
+  border-color: var(--bw-on-field);
+  color: var(--bw-ink);
+}
+.bw-field .bw-btn:hover:not(:disabled) {
+  background: var(--bw-ink);
+  border-color: var(--bw-ink);
+  color: var(--bw-on-ink);
+}
+.bw-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .bw-btns .bw-btn {
+    flex: 1 1 auto;
+    justify-content: space-between;
+  }
 }
 
+.bw-link {
+  color: var(--bw-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.bw-link:hover {
+  text-decoration-thickness: 2px;
+}
+/* Standalone link: the same, plus weight and an arrow. */
+.bw-tlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--bw-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+.bw-tlink:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ----------------------------------------------------------------------
+   Nav. Every control is 36px high; the nav sits on the field.
+   ---------------------------------------------------------------------- */
+.bw-nav-in {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  height: 72px;
+}
+.bw-brandmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--bw-body);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: inherit;
+  text-decoration: none;
+}
+.bw-brandmark span {
+  font-weight: 400;
+  opacity: 0.85;
+}
+.bw-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
+  font-size: 14.5px;
+}
+.bw-nav-links a {
+  color: inherit;
+  text-decoration: none;
+}
+.bw-nav-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 640px) {
+  .bw-nav-in {
+    gap: 16px;
+    height: 60px;
+  }
+  .bw-nav-links {
+    gap: 18px;
+    font-size: 14px;
+  }
+}
+
+/* ----------------------------------------------------------------------
+   Tiles. The grid draws top and left, a tile draws right and bottom, so a
+   rule is never doubled.
+   ---------------------------------------------------------------------- */
+.bw-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--bw-rule);
+  border-left: 1px solid var(--bw-rule);
+}
+.bw-tiles-1 {
+  grid-template-columns: 1fr;
+}
+.bw-tiles-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.bw-tile {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-height: 220px;
+  padding: var(--bw-tile-pad) var(--bw-tile-pad) 60px;
+  border-right: 1px solid var(--bw-rule);
+  border-bottom: 1px solid var(--bw-rule);
+  background: var(--bw-page);
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  transition: background-color var(--bw-motion);
+}
+a.bw-tile:hover,
+button.bw-tile:hover {
+  background: var(--bw-surface);
+  cursor: pointer;
+}
+.bw-band a.bw-tile:hover,
+.bw-band button.bw-tile:hover {
+  background: color-mix(in srgb, var(--bw-surface) 50%, var(--bw-page));
+}
+.bw-tile-icon {
+  color: var(--bw-brand);
+  margin-bottom: 12px;
+}
+.bw-tile-title {
+  font-size: var(--bw-h3);
+  line-height: 1.2;
+  letter-spacing: var(--bw-heading-tracking);
+}
+.bw-tile-text {
+  font-size: var(--bw-small);
+  line-height: 1.5;
+  color: var(--bw-text-muted);
+}
+.bw-tile-arrow {
+  position: absolute;
+  right: var(--bw-tile-pad);
+  bottom: var(--bw-tile-pad);
+}
+/* The compact form has no minimum height and centres the arrow. */
+.bw-tile-compact {
+  min-height: 0;
+  padding: 18px 56px 18px var(--bw-tile-pad);
+  gap: 2px;
+}
+.bw-tile-compact .bw-tile-arrow {
+  top: 50%;
+  bottom: auto;
+  margin-top: -10px;
+}
+.bw-tile-meta {
+  position: absolute;
+  right: var(--bw-tile-pad);
+  top: 50%;
+  margin-top: -10px;
+  font-size: var(--bw-caption);
+  color: var(--bw-text-muted);
+}
+@media (max-width: 1024px) {
+  .bw-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .bw-tiles,
+  .bw-tiles-2 {
+    grid-template-columns: 1fr;
+  }
+  .bw-tile {
+    min-height: 0;
+    padding-bottom: 56px;
+  }
+  .bw-tile-compact {
+    padding-bottom: 18px;
+  }
+}
+
+/* ----------------------------------------------------------------------
+   Code and notes
+   ---------------------------------------------------------------------- */
+.bw-code {
+  font-family: var(--bw-mono);
+  font-size: 0.875em;
+  background: var(--bw-surface);
+  border: 1px solid var(--bw-rule);
+  border-radius: var(--bw-radius-control);
+  padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+/* On the field inline code is an outline, not a grey fill. */
+.bw-field .bw-code {
+  background: transparent;
+  border-color: var(--bw-rule);
+  color: inherit;
+}
+.bw-codeblock {
+  font-family: var(--bw-mono);
+  font-size: var(--bw-code);
+  line-height: 1.65;
+  background: var(--bw-surface);
+  border: 1px solid var(--bw-rule);
+  padding: 20px 24px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* One shape, three kinds, told apart by the first words and the edge. */
+.bw-note {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: var(--bw-small);
+  background: var(--bw-surface);
+  border-left: 3px solid var(--bw-control);
+}
+.bw-note b,
+.bw-note strong {
+  font-weight: 600;
+}
+.bw-note-brand {
+  border-left-color: var(--bw-brand);
+}
+.bw-note-warning {
+  border-left-color: var(--bw-warning);
+}
+
+/* ----------------------------------------------------------------------
+   Form fields
+   ---------------------------------------------------------------------- */
+.bw-form {
+  display: grid;
+  gap: 24px;
+  max-width: 560px;
+  /* Rows stay their own height. Without this a taller sibling column makes
+     the grid stretch every row, which turns the 24px gaps into whatever is
+     left over and inflates the note at the end. */
+  align-content: start;
+}
+.bw-form-field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.bw-label {
+  font-size: var(--bw-small);
+  font-weight: 500;
+}
+.bw-input {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--bw-text);
+  background: var(--bw-page);
+  border: 1px solid var(--bw-control);
+  border-radius: var(--bw-radius-control);
+}
 .bw-input::placeholder {
   color: var(--bw-text-muted);
+  opacity: 1;
 }
-
-.bw-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 13.5px;
+.bw-input[aria-invalid="true"] {
+  border: 2px solid var(--bw-error);
+  padding: 9px 11px;
+}
+select.bw-input {
+  height: 42px;
+}
+.bw-help {
+  font-size: 14px;
   color: var(--bw-text-muted);
 }
-
-.bw-tile {
-  border: 1px solid var(--bw-rule);
-  border-radius: 2px;
-  background: var(--bw-page);
-  padding: 20px;
+.bw-help-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--bw-error);
+}
+.bw-check {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--bw-small);
+  line-height: 1.5;
+}
+.bw-check input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--bw-brand);
 }
 
-.bw-code {
-  font-family: var(--font-mono);
-  font-size: 13.5px;
+/* ----------------------------------------------------------------------
+   Footer. On the surface, no top rule.
+   ---------------------------------------------------------------------- */
+.bw-foot {
   background: var(--bw-surface);
-  padding: 2px 5px;
-  border-radius: 2px;
-  overflow-wrap: anywhere;
+  padding-block: 56px 28px;
+  margin-top: auto;
+}
+.bw-foot-in {
+  display: grid;
+  grid-template-columns: 4fr 2fr 2fr;
+  gap: 32px;
+}
+.bw-foot-brand {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  max-width: 340px;
+}
+.bw-foot-brand p,
+.bw-foot li {
+  font-size: 14px;
+  color: var(--bw-text-muted);
+}
+.bw-foot h3 {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+}
+.bw-foot li {
+  padding: 4px 0;
+}
+.bw-foot a {
+  color: inherit;
+  text-decoration: none;
+}
+.bw-foot a:hover {
+  color: var(--bw-text);
+  text-decoration: underline;
+}
+.bw-foot-legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 24px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--bw-rule);
+  font-size: 13px;
+  color: var(--bw-text-muted);
+}
+@media (max-width: 900px) {
+  .bw-foot-in {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px;
+  }
+  .bw-foot-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ----------------------------------------------------------------------
+   Made in the EU badge. The one place this site shows a flag.
+   ---------------------------------------------------------------------- */
+.bw-eu-flag {
+  flex: none;
+  /* a hairline keeps the blue from sinking into dark grounds */
+  outline: 1px solid color-mix(in srgb, var(--bw-text) 12%, transparent);
+  outline-offset: -1px;
+}
+.bw-eu-field {
+  fill: var(--bw-eu-blue);
+}
+.bw-eu-stars {
+  fill: var(--bw-eu-gold);
+}
+.bw-eu-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.bw-foot-legal .bw-eu-badge {
+  margin-left: auto;
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ArrowRight } from "./icons";
 import { InstanceForm } from "./instance-form";
 import { useInstanceStore } from "./use-instance-store";
 
@@ -9,52 +10,56 @@ export function LandingClient() {
   const { store, ready, update } = useInstanceStore();
   const [adding, setAdding] = useState(false);
 
-  if (!ready) {
-    // Prerendered HTML has nothing to show yet; a spinner here would flash on
-    // every load, so the section simply starts empty.
-    return <div className="min-h-[180px]" />;
-  }
+  // Prerendered HTML has nothing to show yet; a spinner here would flash on
+  // every load, so the section holds its height and starts empty.
+  if (!ready) return <section className="bw-sec-tight min-h-[320px]" />;
 
   if (store.instances.length === 0 || adding) {
     return (
-      <section>
-        <h2 className="mb-4 text-[24px]">
+      <section className="bw-sec-tight">
+        <h2 className="bw-h2">
           {store.instances.length === 0 ? "Add your Bulwark" : "Add another"}
         </h2>
-        <InstanceForm store={store} onStoreChange={update} onAdded={() => setAdding(false)} />
+        <p className="bw-lead mt-3">
+          The address you use to open Bulwark, including a subpath if it runs under one.
+        </p>
+        <div className="mt-8">
+          <InstanceForm store={store} onStoreChange={update} onAdded={() => setAdding(false)} />
+        </div>
       </section>
     );
   }
 
   return (
-    <section>
-      <h2 className="mb-4 text-[24px]">
+    <section className="bw-sec-tight">
+      <h2 className="bw-h2">
         {store.instances.length === 1 ? "Your Bulwark" : "Your Bulwark instances"}
       </h2>
-      <ul className="space-y-3">
+      <div className="bw-tiles bw-tiles-1 mt-8">
         {store.instances.map((instance) => (
-          <li key={instance.id} className="bw-tile flex flex-wrap items-baseline justify-between gap-3">
-            <span>
-              <span className="text-[19px]">{instance.label}</span>
-              <span className="ml-3 bw-code">
-                {instance.origin}
-                {instance.basePath}
-              </span>
+          <a
+            key={instance.id}
+            className="bw-tile bw-tile-compact"
+            href={`${instance.origin}${instance.basePath}/`}
+            rel="noreferrer"
+          >
+            <span className="bw-tile-title">{instance.label}</span>
+            <span className="bw-tile-text">
+              {instance.origin}
+              {instance.basePath}
             </span>
-            <a className="text-[15px]" href={`${instance.origin}${instance.basePath}/`} rel="noreferrer">
-              Open
-            </a>
-          </li>
+            <ArrowRight size={20} className="bw-tile-arrow" />
+          </a>
         ))}
-      </ul>
-      <p className="mt-5 flex gap-4 text-[15px]">
-        <button type="button" className="bw-button" onClick={() => setAdding(true)}>
+      </div>
+      <div className="bw-btns mt-8">
+        <button type="button" className="bw-btn bw-btn-ghost" onClick={() => setAdding(true)}>
           Add another
         </button>
-        <Link className="bw-button" href="/instances">
-          Manage
+        <Link className="bw-btn bw-btn-ghost" href="/instances">
+          Manage instances
         </Link>
-      </p>
+      </div>
     </section>
   );
 }

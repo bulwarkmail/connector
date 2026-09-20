@@ -4,15 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { buildInstanceUrl, validateParams, type Target } from "@/lib/registry";
 import { supportsTarget } from "@/lib/probe";
-import {
-  resolveInstance,
-  setDefaultInstance,
-  type Instance,
-  type Store,
-} from "@/lib/instances";
+import { resolveInstance, setDefaultInstance, type Instance, type Store } from "@/lib/instances";
+import { SiteShell } from "./site-shell";
 import { useInstanceStore } from "./use-instance-store";
 import { useLocationSearch } from "./use-location-search";
 import { InstanceForm } from "./instance-form";
+import { ArrowRight } from "./icons";
 
 /** Long enough to read the destination, short enough not to feel like a wait. */
 const INTERSTITIAL_MS = 900;
@@ -35,7 +32,6 @@ export function RedirectClient({ target }: { target: Target }) {
   const [overrideAge, setOverrideAge] = useState(false);
 
   const validation = useMemo(() => validateParams(target, search), [search, target]);
-
   const instance = chosen ?? (ready ? resolveInstance(store) : null);
 
   const step: Step = useMemo(() => {
@@ -69,148 +65,182 @@ export function RedirectClient({ target }: { target: Target }) {
 
   switch (step.kind) {
     case "loading":
-      return <p className="text-muted">Working out where to send you…</p>;
+      return (
+        <SiteShell>
+          <p className="bw-muted">Working out where to send you…</p>
+        </SiteShell>
+      );
 
     case "bad-params":
       return (
-        <Card title="That link is not quite right">
-          <p>
-            It asks for <strong>{target.label}</strong>, but its{" "}
-            <span className="bw-code">{step.param}</span> {step.reason}.
+        <SiteShell
+          head={
+            <>
+              <h1 className="bw-h1">That link is not quite right.</h1>
+              <p className="bw-lead">
+                It asks for {target.label.toLowerCase()}, but one of its parameters is missing or
+                malformed. Nothing was opened.
+              </p>
+            </>
+          }
+        >
+          {/* The parameter is named, never echoed: its value is attacker-controlled. */}
+          <p className="bw-note bw-note-warning bw-body">
+            <b>Warning.</b> The <code className="bw-code">{step.param}</code> parameter{" "}
+            {step.reason}. If you were sent this link, whoever wrote it can rebuild it with the
+            link maker.
           </p>
-          <p className="mt-3 text-muted">
-            Nothing was opened. If you were sent this link, whoever wrote it can rebuild it with
-            the <Link href="/create-link">link maker</Link>.
-          </p>
-        </Card>
+          <div className="bw-btns mt-8">
+            <Link className="bw-btn" href="/create-link">
+              Make a working link
+            </Link>
+            <Link className="bw-btn bw-btn-ghost" href="/">
+              Start over
+            </Link>
+          </div>
+        </SiteShell>
       );
 
     case "no-instances":
       return (
-        <>
-          <header className="mb-6">
-            <h1 className="text-[34px]">Open {target.label} on your Bulwark</h1>
-            <p className="mt-2 text-muted">
-              {target.description} First, tell this browser where your Bulwark is. It is stored
-              here and sent nowhere.
-            </p>
-          </header>
+        <SiteShell
+          head={
+            <>
+              <h1 className="bw-h1">Open {target.label.toLowerCase()} on your Bulwark.</h1>
+              <p className="bw-lead">
+                {target.description} First, tell this browser where your Bulwark is. It is stored
+                here and sent nowhere.
+              </p>
+            </>
+          }
+        >
           <InstanceForm
             store={store}
             onStoreChange={update}
             onAdded={setChosen}
             submitLabel="Add and continue"
           />
-        </>
+        </SiteShell>
       );
 
     case "choose":
       return (
-        <>
-          <header className="mb-6">
-            <h1 className="text-[34px]">Which Bulwark?</h1>
-            <p className="mt-2 text-muted">
-              Opening <strong>{target.label}</strong>.
-            </p>
-          </header>
-          <ul className="space-y-3">
+        <SiteShell
+          head={
+            <>
+              <h1 className="bw-h1">Which Bulwark?</h1>
+              <p className="bw-lead">Opening {target.label.toLowerCase()}.</p>
+            </>
+          }
+        >
+          <div className="bw-tiles bw-tiles-1">
             {store.instances.map((candidate) => (
-              <li key={candidate.id}>
-                <button
-                  type="button"
-                  className="bw-tile flex w-full items-baseline justify-between gap-4 text-left hover:bg-surface"
-                  onClick={() => pick(candidate)}
-                >
-                  <span>
-                    <span className="text-[19px]">{candidate.label}</span>
-                    <span className="ml-3 bw-code">{candidate.origin}{candidate.basePath}</span>
-                  </span>
-                  <span className="shrink-0 text-[13.5px] text-muted">
-                    {candidate.verifiedAt ? (candidate.version ?? "checked") : "not checked"}
-                  </span>
-                </button>
-              </li>
+              <button
+                key={candidate.id}
+                type="button"
+                className="bw-tile bw-tile-compact"
+                onClick={() => pick(candidate)}
+              >
+                <span className="bw-tile-title">{candidate.label}</span>
+                <span className="bw-tile-text">
+                  {candidate.origin}
+                  {candidate.basePath}
+                </span>
+                <span className="bw-tile-meta">
+                  {candidate.verifiedAt ? (candidate.version ?? "checked") : "not checked"}
+                </span>
+              </button>
             ))}
-          </ul>
-          <label className="mt-5 flex items-center gap-2 text-[15px]">
+          </div>
+          <label className="bw-check mt-8">
             <input
               type="checkbox"
               checked={remember}
               onChange={(event) => setRemember(event.target.checked)}
             />
-            Remember my choice in this browser
+            <span>Remember my choice in this browser</span>
           </label>
-          <p className="mt-6 text-[15px] text-muted">
-            <Link href="/add">Add another instance</Link>
+          <p className="mt-8">
+            <Link className="bw-tlink" href="/add">
+              Add another instance
+              <ArrowRight size={16} />
+            </Link>
           </p>
-        </>
+        </SiteShell>
       );
 
     case "too-old":
       return (
-        <Card title="That instance is too old for this link">
-          <p>
-            <span className="bw-code">{step.instance.origin}{step.instance.basePath}</span> runs{" "}
-            {step.instance.version ?? "an older version"}, which does not know the{" "}
-            <strong>{target.label}</strong> link. Bulwark {target.minVersion} or later does.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button type="button" className="bw-button" onClick={() => setOverrideAge(true)}>
+        <SiteShell
+          head={
+            <>
+              <h1 className="bw-h1">That instance is too old for this link.</h1>
+              <p className="bw-lead">
+                {step.instance.origin}
+                {step.instance.basePath} runs {step.instance.version ?? "an older version"}, which
+                does not know this link. Bulwark {target.minVersion} or later does.
+              </p>
+            </>
+          }
+        >
+          <div className="bw-btns">
+            <button type="button" className="bw-btn" onClick={() => setOverrideAge(true)}>
               Try it anyway
             </button>
             <a
-              className="bw-button"
+              className="bw-btn bw-btn-ghost"
               href={`${step.instance.origin}${step.instance.basePath}/`}
               rel="noreferrer"
             >
               Just open Bulwark
             </a>
             {store.instances.length > 1 ? (
-              <button type="button" className="bw-button" onClick={() => setChosen(null)}>
+              <button type="button" className="bw-btn bw-btn-ghost" onClick={() => setChosen(null)}>
                 Use a different instance
               </button>
             ) : null}
           </div>
-        </Card>
+        </SiteShell>
       );
 
     case "opening":
       return (
-        <div className="py-10">
-          <h1 className="text-[28px]">
-            Opening {target.label} on{" "}
-            <span className="bw-code text-[21px]">{step.instance.origin.replace(/^https?:\/\//, "")}{step.instance.basePath}</span>
-          </h1>
-          <p className="mt-4 text-muted">
-            <a href={step.url} rel="noreferrer">
-              Continue now
-            </a>
-            {store.instances.length > 1 ? (
-              <>
-                {" · "}
-                <button
-                  type="button"
-                  className="underline text-link"
-                  onClick={() => {
-                    setChosen(null);
-                    update(setDefaultInstance(store, null));
-                  }}
-                >
-                  Not this one?
-                </button>
-              </>
-            ) : null}
+        <SiteShell
+          head={
+            <>
+              <h1 className="bw-h1">
+                Opening {target.label.toLowerCase()} on{" "}
+                {step.instance.origin.replace(/^https?:\/\//, "")}
+                {step.instance.basePath}.
+              </h1>
+              <p className="bw-lead">
+                <a className="bw-link" href={step.url} rel="noreferrer">
+                  Continue now
+                </a>
+                {store.instances.length > 1 ? (
+                  <>
+                    {" · "}
+                    <button
+                      type="button"
+                      className="bw-tlink"
+                      onClick={() => {
+                        setChosen(null);
+                        update(setDefaultInstance(store, null));
+                      }}
+                    >
+                      Not this one?
+                    </button>
+                  </>
+                ) : null}
+              </p>
+            </>
+          }
+        >
+          <p className="bw-muted bw-small">
+            Your instance addresses stay in this browser. Nothing about this link reaches a server
+            we run.
           </p>
-        </div>
+        </SiteShell>
       );
   }
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bw-tile max-w-[620px]">
-      <h1 className="text-[24px]">{title}</h1>
-      <div className="mt-3 text-[15px]">{children}</div>
-    </div>
-  );
 }

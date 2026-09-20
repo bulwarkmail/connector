@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { SiteShell } from "@/components/site-shell";
 
-// next/font downloads these at build time and serves them from this origin.
-// Nothing on these pages loads from anywhere else, and scripts/check-privacy.mjs
-// fails the build if that changes.
+// One family for everything and a mono for code, as the design system's font
+// plan specifies. next/font downloads both at build time and serves them from
+// this origin; nothing on these pages loads from anywhere else, and
+// scripts/check-privacy.mjs fails the build if that changes.
 const hanken = Hanken_Grotesk({
   variable: "--font-hanken",
   subsets: ["latin"],
@@ -15,7 +15,7 @@ const hanken = Hanken_Grotesk({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -37,12 +37,20 @@ export const metadata: Metadata = {
   referrer: "no-referrer",
 };
 
+// The system themes with `.dark` on <html>, set before first paint. Here it
+// follows the operating system and is never stored: this site remembers one
+// thing about a visitor (their instance list), and a theme preference is not
+// worth becoming the second. Inline because it has to run before the first
+// paint; `try` because a blocked matchMedia must not stop the page.
+const THEME_SCRIPT = `try{if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.classList.add("dark")}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${hanken.variable} ${jetbrainsMono.variable}`}>
-      <body>
-        <SiteShell>{children}</SiteShell>
-      </body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

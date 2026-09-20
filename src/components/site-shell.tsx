@@ -1,49 +1,92 @@
 import Link from "next/link";
+import { BulwarkMark } from "./bulwark-mark";
+import { MadeInEuBadge } from "./eu-badge";
 
-/** The Bulwark mark, inline so a page renders complete in one request. */
-function Mark({ className }: { className?: string }) {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element -- a fixed-size SVG; the optimizer is off in a static export anyway
-    <img
-      src="/branding/logo/Bulwark Logo Color.svg"
-      alt=""
-      width={22}
-      height={22}
-      className={className}
-    />
-  );
-}
-
-export function SiteShell({ children }: { children: React.ReactNode }) {
+/**
+ * Nav and footer, per the design system's component rules.
+ *
+ * The nav sits on the field, which is this site's one flat raspberry area.
+ * A page passes its heading through `head`, so the heading shares that field
+ * with the nav instead of opening a second coloured band under it.
+ */
+export function SiteShell({
+  head,
+  children,
+}: {
+  head?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b">
-        <div className="mx-auto flex h-14 w-full max-w-[880px] items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2 text-ink no-underline hover:no-underline">
-            <Mark />
-            <span className="text-[15px]">
-              Bulwark <span className="text-muted">Connector</span>
-            </span>
-          </Link>
-          <nav className="flex items-center gap-4 text-[14px]">
-            <Link href="/instances">Instances</Link>
-            <Link href="/create-link">Make a link</Link>
+      <div className="bw-field">
+        <div className="bw-w">
+          <nav className="bw-nav-in">
+            <Link href="/" className="bw-brandmark">
+              {/* currentColor, so the mark is white on the field. */}
+              <BulwarkMark size={26} color="currentColor" />
+              Bulwark <span>Connector</span>
+            </Link>
+            <div className="bw-nav-links">
+              <Link href="/instances">Instances</Link>
+              <Link href="/create-link">Make a link</Link>
+            </div>
           </nav>
         </div>
-      </header>
+        {head ? (
+          <div className="bw-w">
+            <header className="bw-head">{head}</header>
+          </div>
+        ) : null}
+      </div>
 
-      <main className="mx-auto w-full max-w-[880px] flex-1 px-4 py-10">{children}</main>
+      <main className="bw-w bw-main flex-1">{children}</main>
 
-      <footer className="border-t">
-        <div className="mx-auto flex w-full max-w-[880px] flex-wrap items-center justify-between gap-3 px-4 py-6 text-[13.5px] text-muted">
-          <p>
-            Your instance addresses stay in this browser. Nothing about you is stored on a
-            server.
-          </p>
-          <p className="flex gap-4">
-            <a href="https://bulwarkmail.org">bulwarkmail.org</a>
-            <a href="https://github.com/bulwarkmail/connector">Source</a>
-          </p>
+      <footer className="bw-foot">
+        <div className="bw-w">
+          <div className="bw-foot-in">
+            <div className="bw-foot-brand">
+              <Link href="/" className="bw-brandmark">
+                <BulwarkMark size={26} />
+                Bulwark <span>Connector</span>
+              </Link>
+              <p>
+                Opens a link on your own Bulwark instance. Your instance addresses stay in this
+                browser and are never sent anywhere.
+              </p>
+            </div>
+            <div>
+              <h3>This site</h3>
+              <ul>
+                <li>
+                  <Link href="/instances">Your instances</Link>
+                </li>
+                <li>
+                  <Link href="/add">Add an instance</Link>
+                </li>
+                <li>
+                  <Link href="/create-link">Make a link</Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3>Bulwark</h3>
+              <ul>
+                <li>
+                  <a href="https://bulwarkmail.org">Website</a>
+                </li>
+                <li>
+                  <a href="https://bulwarkmail.org/docs">Documentation</a>
+                </li>
+                <li>
+                  <a href="https://github.com/bulwarkmail/connector">Source</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="bw-foot-legal">
+            <span>Open source under AGPL-3.0.</span>
+            <MadeInEuBadge />
+          </div>
         </div>
       </footer>
     </div>

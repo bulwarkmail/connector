@@ -196,6 +196,8 @@ function placeholderFor(spec: ParamSpec): string {
       return "Documents/Invoices";
     case "id":
       return "inbox";
+    case "version":
+      return "1.2.3";
     default:
       return "";
   }

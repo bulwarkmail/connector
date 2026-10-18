@@ -8,6 +8,7 @@ Bulwark runs. A connector link names a page instead of a server:
 ```
 https://connector.bulwarkmail.org/settings?tab=filters
 https://connector.bulwarkmail.org/admin_extension?slug=quick-reply
+https://connector.bulwarkmail.org/admin_extension?slug=quick-reply&version=1.2.0
 ```
 
 In a browser that knows your Bulwark, those open as
@@ -15,6 +16,15 @@ In a browser that knows your Bulwark, those open as
 ```
 https://mail.example.com/connector/settings?tab=filters
 https://mail.example.com/connector/admin_extension?slug=quick-reply
+https://mail.example.com/connector/admin_extension?slug=quick-reply&version=1.2.0
+```
+
+The extension directory puts the second kind of link on every extension (its
+"Install on your Bulwark" button) and the third on every version. An
+extension README can carry the same link as a badge:
+
+```markdown
+[![Install in Bulwark](https://connector.bulwarkmail.org/badges/admin_extension.svg)](https://connector.bulwarkmail.org/admin_extension?slug=quick-reply)
 ```
 
 Your Bulwark takes it from there.

@@ -116,6 +116,38 @@ describe("validateParams", () => {
     expect(result.ok).toBe(false);
   });
 
+  it("accepts a release version next to the slug", () => {
+    const result = validateParams(target("admin_extension"), {
+      slug: "quick-reply",
+      version: "1.2.3",
+    });
+    expect(result).toEqual({ ok: true, params: { slug: "quick-reply", version: "1.2.3" } });
+  });
+
+  it("accepts a pre-release version, which the beta channel publishes", () => {
+    const result = validateParams(target("admin_extension"), {
+      slug: "quick-reply",
+      version: "2.0.0-beta.1",
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it.each(["1.2", "v1.2.3", "1.2.3+build.5", "latest", "1.2.3/..", "1.2.3?x", " 1.2.3", "1.2.3-"])(
+    "rejects the version %j",
+    (version) => {
+      const result = validateParams(target("admin_extension"), { slug: "quick-reply", version });
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.param).toBe("version");
+    },
+  );
+
+  it("leaves the version out when the link did not name one", () => {
+    expect(validateParams(target("admin_extension"), { slug: "quick-reply", version: "" })).toEqual({
+      ok: true,
+      params: { slug: "quick-reply" },
+    });
+  });
+
   it.each(["2026-09-20", "2024-02-29"])("accepts the date %s", (date) => {
     const result = validateParams(target("calendar"), { date });
     expect(result.ok).toBe(true);

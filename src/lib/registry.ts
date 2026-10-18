@@ -35,7 +35,9 @@ export type ParamSpec =
       readonly suggest?: readonly string[];
     }
   /** A `/`-separated path inside the drive. Segments are validated one by one. */
-  | { readonly type: "path"; readonly required?: boolean };
+  | { readonly type: "path"; readonly required?: boolean }
+  /** A release version as the directory publishes it: `1.2.3` or `1.2.3-beta.1`. */
+  | { readonly type: "version"; readonly required?: boolean };
 
 export interface Target {
   readonly name: string;
@@ -182,10 +184,13 @@ export const TARGETS: readonly Target[] = [
   {
     name: "admin_extension",
     label: "Install an extension",
-    description: "Open an extension's marketplace page, where an admin can install it.",
+    description:
+      "Open an extension's marketplace page, where an admin can install it. With a version, that version is offered instead of the newest one.",
     minVersion: V1,
     group: "Admin",
-    params: { slug: { type: "slug", required: true } },
+    // Instances older than the version parameter drop it and open the page
+    // with the newest version offered, so no separate minVersion is needed.
+    params: { slug: { type: "slug", required: true }, version: { type: "version" } },
   },
   {
     name: "admin_plugin",
@@ -233,6 +238,9 @@ const MAX_PARAM_LENGTH = 512;
 
 const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+// Semver core with an optional pre-release; build metadata (`+sha`) is not
+// part of a published version and is refused along with everything else.
+const VERSION = /^\d{1,9}\.\d{1,9}\.\d{1,9}(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 export type ValidationResult =
   | { readonly ok: true; readonly params: Readonly<Record<string, string>> }
@@ -257,6 +265,8 @@ function validateOne(spec: ParamSpec, value: string): string | null {
       return SLUG.test(value) ? null : "may only contain lowercase letters, numbers and dashes";
     case "date":
       return isRealDate(value) ? null : "must be a date like 2026-09-20";
+    case "version":
+      return VERSION.test(value) ? null : "must be a version like 1.2.3";
     case "id":
       // Opaque, but it becomes one path segment on the instance, so it may not
       // contain anything that could climb out of it. `%` is refused along with

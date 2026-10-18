@@ -29,23 +29,28 @@ const THEMES = {
 // Hanken Grotesk is not on the reader's machine, so the badge measures against
 // the system sans it will actually fall back to. 6.6px per character at 12px
 // is a close enough average for the short label used here.
-const LABEL = "Open in Bulwark";
-const WIDTH = Math.round(38 + LABEL.length * 6.6);
+const DEFAULT_LABEL = "Open in Bulwark";
+// Targets whose badge says what the click does rather than where it goes. The
+// extension directory and extension READMEs link to admin_extension, and
+// "Install in Bulwark" is what that link is for.
+const LABELS = { admin_extension: "Install in Bulwark" };
 const HEIGHT = 24;
 
-function badge({ bg, border, text, brand }) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="${LABEL}">
-  <rect x="0.5" y="0.5" width="${WIDTH - 1}" height="${HEIGHT - 1}" rx="2" fill="${bg}" stroke="${border}"/>
+function badge(label, { bg, border, text, brand }) {
+  const width = Math.round(38 + label.length * 6.6);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${HEIGHT}" viewBox="0 0 ${width} ${HEIGHT}" role="img" aria-label="${label}">
+  <rect x="0.5" y="0.5" width="${width - 1}" height="${HEIGHT - 1}" rx="2" fill="${bg}" stroke="${border}"/>
   <circle cx="14" cy="12" r="5" fill="${brand}"/>
-  <text x="26" y="16" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" fill="${text}">${LABEL}</text>
+  <text x="26" y="16" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="12" fill="${text}">${label}</text>
 </svg>
 `;
 }
 
 await mkdir(OUT, { recursive: true });
 for (const name of names) {
-  await writeFile(join(OUT, `${name}.svg`), badge(THEMES.light));
-  await writeFile(join(OUT, `${name}-dark.svg`), badge(THEMES.dark));
+  const label = LABELS[name] ?? DEFAULT_LABEL;
+  await writeFile(join(OUT, `${name}.svg`), badge(label, THEMES.light));
+  await writeFile(join(OUT, `${name}-dark.svg`), badge(label, THEMES.dark));
 }
 
 console.log(`badges: ${names.length} targets, ${names.length * 2} files in out/badges`);
